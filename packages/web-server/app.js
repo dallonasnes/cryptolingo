@@ -5,7 +5,7 @@ const Web3 = require('web3');
 const nodePort = 3033;
 const ethPort = 8545;
 // TODO: update me based on contract name
-const contractABIFile = require("../react-app/src/contracts/hardhat_contracts.json")["31337"]["localhost"]["contracts"]["YourContract"];
+const contractABIFile = require("../react-app/src/contracts/hardhat_contracts.json")["31337"]["localhost"]["contracts"]["LingoRewards"];
 const contractABI = contractABIFile["abi"];
 const address = contractABIFile["address"];
 
@@ -23,10 +23,8 @@ let accounts;
 let contract;
 
 app.get('/', async (req, res) => {
-    const purpose = contract.methods.purpose;
-    console.log(`Purpose: ${purpose}`);
-    // TODO: this is how you call a method
-    // const pup = await (await purpose()).call();
+    const pauserRole = await (await contract.methods.PAUSER_ROLE()).call();
+    console.log(pauserRole);
     res.send(`hello world called`);
 })
 
