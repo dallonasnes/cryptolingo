@@ -28,6 +28,13 @@ app.get('/', async (req, res) => {
     res.send(`hello world called`);
 })
 
+app.get('/auth', async (req, res) => {
+    for (var prop in req) {
+        console.log(`Req: ${prop}`);
+    }
+    res.json({auth: true});
+})
+
 app.listen(nodePort, async () => {
     if (!didLoadContract) {
         try {

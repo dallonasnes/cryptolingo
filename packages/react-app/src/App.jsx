@@ -214,6 +214,17 @@ function App(props) {
     myMainnetDAIBalance,
   ]);
 
+  const authorizeWalletWithWebServer = async () => {
+    const res = await fetch("http://localhost:3033/auth");
+    // If request failed, return false
+    if (!res || res.status != 200) {
+      return false;
+    }
+    const resJSON = await res.json();
+    // Return the auth value, or default to false
+    return resJSON ? resJSON.auth : false;
+  }
+
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
     setInjectedProvider(new ethers.providers.Web3Provider(provider));
@@ -233,6 +244,13 @@ function App(props) {
       console.log(code, reason);
       logoutOfWeb3Modal();
     });
+
+    const isAuthorizedWallet = await authorizeWalletWithWebServer();
+    // Check to see if real wallet connection or impersonated wallet
+    if (!isAuthorizedWallet) {
+      logoutOfWeb3Modal();
+      alert("Sorry but this is not a valid wallet connection");
+    }
     // eslint-disable-next-line
   }, [setInjectedProvider]);
 
