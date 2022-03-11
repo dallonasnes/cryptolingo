@@ -33,7 +33,7 @@ const setup = async () => {
     }
 }
 
-const auth = async ({address, signature, message}) => {
+const authorize = async ({address, signature, message}) => {
     console.log(`Address ${address}`)
     console.log(`Signature ${signature}`)
     const recoveredAddress = await web3.eth.accounts.recover(message, signature);
@@ -54,7 +54,7 @@ app.get('/auth', async (req, res) => {
     const signature = req.header('signature');
     const message = req.header('message');
     try {
-        auth = await auth({address, signature, message})
+        auth = await authorize({address, signature, message})
     } catch (e) {
         console.log(`Error authenticating request: ${e}\n`)
     }
