@@ -7,7 +7,6 @@ import { gql, useQuery } from "@apollo/client";
 import GraphiQL from "graphiql";
 import fetch from "isomorphic-fetch";
 
-
 import { Address } from "../components";
 
 const highlight = {
