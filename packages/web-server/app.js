@@ -29,10 +29,20 @@ app.get('/', async (req, res) => {
 })
 
 app.get('/auth', async (req, res) => {
-    for (var prop in req) {
-        console.log(`Req: ${prop}`);
+    let auth = false;
+    try {
+        const address = req.header('address');
+        const signature = req.header('signature');
+        const message = req.header('message');
+        console.log(`Address ${address}`)
+        console.log(`Signature ${signature}`)
+        const recoveredAddress = await web3.eth.accounts.recover(message, signature);
+        console.log(`Recovered address ${recoveredAddress}\n`)
+        auth = address === recoveredAddress;
+    } catch (e) {
+        console.log(`Error authenticating request: ${e}\n`)
     }
-    res.json({auth: true});
+    res.json({auth});
 })
 
 app.listen(nodePort, async () => {

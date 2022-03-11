@@ -56,7 +56,7 @@ const { ethers } = require("ethers");
 const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = true;
+const DEBUG = false;
 const NETWORKCHECK = true;
 const USE_BURNER_WALLET = true; // toggle burner wallet feature
 const USE_NETWORK_SELECTOR = false;
@@ -77,6 +77,8 @@ function App(props) {
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
+  const [signedMessage, setSignedMessage] = useState();
+  const [isSessionAuthenticated, setIsSessionAuthenticated] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
   const location = useLocation();
 
@@ -114,12 +116,42 @@ function App(props) {
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProviderAndSigner = useUserProviderAndSigner(injectedProvider, localProvider, USE_BURNER_WALLET);
   const userSigner = userProviderAndSigner.signer;
+  const messageToSign = "hello world";
+
+  const authorizeWalletWithWebServer = async ({ address, signature }) => {
+    try {
+      const res = await fetch("http://localhost:3033/auth", {
+        headers: {
+          address: address,
+          signature: signature,
+          message: messageToSign,
+        },
+      });
+      // If request failed, return false
+      if (!res || res.status != 200) {
+        return false;
+      }
+      const resJSON = await res.json();
+      // Return the auth value, or default to false
+      return resJSON ? resJSON.auth : false;
+    } catch (e) {
+      console.log(`Error while authorizing session ${e}`);
+    }
+    return false;
+  };
 
   useEffect(() => {
     async function getAddress() {
       if (userSigner) {
         const newAddress = await userSigner.getAddress();
         setAddress(newAddress);
+        if (DEBUG) console.log(`New address: ${newAddress}`);
+        const signature = await userSigner.signMessage(messageToSign);
+        setSignedMessage(signature);
+        if (DEBUG) console.log(`Signature: ${signature}`);
+        const isSessionAuthenticated = await authorizeWalletWithWebServer({ address: newAddress, signature });
+        if (DEBUG) console.log(`Is Session Authenticated: ${isSessionAuthenticated}`);
+        setIsSessionAuthenticated(isSessionAuthenticated);
       }
     }
     getAddress();
@@ -214,21 +246,9 @@ function App(props) {
     myMainnetDAIBalance,
   ]);
 
-  const authorizeWalletWithWebServer = async () => {
-    const res = await fetch("http://localhost:3033/auth");
-    // If request failed, return false
-    if (!res || res.status != 200) {
-      return false;
-    }
-    const resJSON = await res.json();
-    // Return the auth value, or default to false
-    return resJSON ? resJSON.auth : false;
-  }
-
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
     setInjectedProvider(new ethers.providers.Web3Provider(provider));
-
     provider.on("chainChanged", chainId => {
       console.log(`chain changed to ${chainId}! updating providers`);
       setInjectedProvider(new ethers.providers.Web3Provider(provider));
@@ -245,12 +265,6 @@ function App(props) {
       logoutOfWeb3Modal();
     });
 
-    const isAuthorizedWallet = await authorizeWalletWithWebServer();
-    // Check to see if real wallet connection or impersonated wallet
-    if (!isAuthorizedWallet) {
-      logoutOfWeb3Modal();
-      alert("Sorry but this is not a valid wallet connection");
-    }
     // eslint-disable-next-line
   }, [setInjectedProvider]);
 

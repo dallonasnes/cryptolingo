@@ -120,10 +120,10 @@ export default function Contract({
     <div style={{ margin: "auto", width: "70vw" }}>
       <Card
         title={
-          <div style={{fontSize:24}}>
+          <div style={{ fontSize: 24 }}>
             {name}
             <div style={{ float: "right" }}>
-              <Address value={address}/>
+              <Address value={address} />
               <Balance address={address} provider={provider} price={price} />
             </div>
           </div>
