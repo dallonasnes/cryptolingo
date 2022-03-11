@@ -4,7 +4,13 @@
   "description": "Web server layer",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=test jest --testTimeout=10000"
+ },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   },
   "author": "",
   "license": "ISC",
@@ -13,5 +19,10 @@
     "express": "^4.17.3",
     "hardhat": "^2.9.1",
     "web3": "^1.7.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^27.5.1",
+    "supertest": "^6.2.2"
   }
 }
