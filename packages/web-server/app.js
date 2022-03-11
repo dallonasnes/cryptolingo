@@ -30,6 +30,7 @@ app.get('/', async (req, res) => {
 
 app.get('/auth', async (req, res) => {
     let auth = false;
+    console.log(new Date().toString())
     try {
         const address = req.header('address');
         const signature = req.header('signature');
@@ -46,6 +47,7 @@ app.get('/auth', async (req, res) => {
 })
 
 app.listen(nodePort, async () => {
+    console.log(new Date().toString())
     if (!didLoadContract) {
         try {
             accounts = await web3.eth.getAccounts();
