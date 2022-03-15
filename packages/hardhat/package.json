@@ -17,7 +17,7 @@
     "@tenderly/hardhat-tenderly": "^1.0.10",
     "@nomiclabs/hardhat-etherscan": "^2.1.7",
     "chai": "^4.2.0",
-    "chalk": "^4.1.0",
+    "chalk": "^5.0.1",
     "dotenv": "^16.0.0",
     "ethereum-waffle": "^3.1.1",
     "ethers": "^5.4.4",
