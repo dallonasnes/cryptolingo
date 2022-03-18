@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useContractReader } from "eth-hooks";
+import { create } from "ipfs-http-client";
+
+const client = create("https://ipfs.infura.io:5001/api/v0");
 
 import { ethers } from "ethers";
 // const handleSuccess = stream => {
@@ -50,12 +53,17 @@ import { ethers } from "ethers";
  **/
 function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx }) {
   const [text, setText] = useState();
+  const [textFileUrl, setTextFileUrl] = useState();
 
   // navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(handleSuccess);
 
   const handleSubmit = async () => {
+    if (!text) return;
     // TODO
     // 1. get text, write to IPFS
+    const added = await client.add(text);
+    const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+    setTextFileUrl(url);
     // 2. setup livepeer and record
     // 3. write both to NFT storage api, await response
     // 4. write to createStory api on smart contract
@@ -67,22 +75,22 @@ function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx }) {
 
   return (
     <>
-      <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
-        <label>
-          Text:
-          <input type="text" value={text} onChange={handleChange} />
-        </label>
-        <br />
-        {/* <button id="start">Start</button>
+      <label>
+        Text:
+        <input type="text" value={text} onChange={e => handleChange(e)} />
+      </label>
+      <br />
+      {/* <button id="start">Start</button>
         <br />
         <audio id="player" controls></audio>
         <br />
         <button id="download">Download</button>
         <br />
         <button id="stop">Stop</button> */}
-        <br />
-        <input type="submit" value="Submit" />
-      </form>
+      <br />
+      <button type="submit" value="Submit" onClick={() => handleSubmit()}>
+        Submit
+      </button>
     </>
   );
 }
