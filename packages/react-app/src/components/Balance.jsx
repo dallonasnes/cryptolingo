@@ -30,11 +30,13 @@ const { utils } = require("ethers");
 **/
 
 export default function Balance(props) {
-  const [dollarMode, setDollarMode] = useState(true);
+  const [dollarMode, setDollarMode] = useState(false);
 
   const balance = useBalance(props.provider, props.address);
   let floatBalance = parseFloat("0.00");
   let usingBalance = balance;
+  const tokenBalance = props.tokenBalance;
+  const tokenBalanceExists = tokenBalance !== undefined && tokenBalance !== null;
 
   if (typeof props.balance !== "undefined") usingBalance = props.balance;
   if (typeof props.value !== "undefined") usingBalance = props.value;
@@ -53,6 +55,9 @@ export default function Balance(props) {
     displayBalance = "$" + (floatBalance * price).toFixed(2);
   }
 
+  // Use cryptoLingo token balance instead
+  if (tokenBalanceExists) displayBalance = `${tokenBalance.toFixed(2)} cryptoLingos`;
+
   return (
     <span
       style={{
@@ -62,7 +67,7 @@ export default function Balance(props) {
         cursor: "pointer",
       }}
       onClick={() => {
-        setDollarMode(!dollarMode);
+        // setDollarMode(!dollarMode);
       }}
     >
       {displayBalance}

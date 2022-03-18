@@ -80,6 +80,7 @@ function App(props) {
   const [signedMessage, setSignedMessage] = useState();
   const [isSessionAuthenticated, setIsSessionAuthenticated] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
+  const [tokenBalance, setTokenBalance] = useState(0);
   const location = useLocation();
 
   const targetNetwork = NETWORKS[selectedNetwork];
@@ -275,6 +276,25 @@ function App(props) {
     }
   }, [loadWeb3Modal]);
 
+  useEffect(() => {
+    async function getUserTokenBalance() {
+      if (userSigner && readContracts && readContracts.LingoRewards) {
+        try {
+          const res = await readContracts.LingoRewards.balanceOf(address);
+          const balance = Number(res._hex);
+          setTokenBalance(balance);
+        } catch (e) {
+          console.log("ERR:", e);
+        }
+      }
+    }
+    getUserTokenBalance();
+  }, [userSigner, readContracts]);
+
+  useEffect(() => {
+    console.log("Token balance updated:", tokenBalance);
+  }, [tokenBalance]);
+
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
   return (
@@ -303,7 +323,12 @@ function App(props) {
 
       <Switch>
         <Route exact path="/">
-          <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} auth={isSessionAuthenticated} />
+          <Home
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
+            auth={isSessionAuthenticated}
+            tokenBalance={tokenBalance}
+          />
         </Route>
         <Route exact path="/upload">
           <Upload
@@ -311,11 +336,21 @@ function App(props) {
             readContracts={readContracts}
             auth={isSessionAuthenticated}
             writeContracts={writeContracts}
+            tokenBalance={tokenBalance}
+            setTokenBalance={setTokenBalance}
             tx={tx}
           />
         </Route>
         <Route exact path="/read">
-          <Read yourLocalBalance={yourLocalBalance} readContracts={readContracts} auth={isSessionAuthenticated} />
+          <Read
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
+            auth={isSessionAuthenticated}
+            writeContracts={writeContracts}
+            tokenBalance={tokenBalance}
+            setTokenBalance={setTokenBalance}
+            tx={tx}
+          />
         </Route>
       </Switch>
 
@@ -344,11 +379,9 @@ function App(props) {
             loadWeb3Modal={loadWeb3Modal}
             logoutOfWeb3Modal={logoutOfWeb3Modal}
             blockExplorer={blockExplorer}
+            tokenBalance={tokenBalance}
           />
         </div>
-        {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
-          <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
-        )}
       </div>
     </div>
   );

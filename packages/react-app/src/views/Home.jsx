@@ -9,10 +9,11 @@ import { Link } from "react-router-dom";
  * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
  * @returns react component
  **/
-function Home({ yourLocalBalance, readContracts }) {
+function Home({ yourLocalBalance, readContracts, tokenBalance }) {
   return (
     <>
       <div style={{ margin: 32 }}>First connect your wallet in the top-right!</div>
+      <div style={{ margin: 32 }}>You currently have {tokenBalance} cryptoLingo tokens!</div>
       <div style={{ margin: 32 }}>
         Upload content - click on the <Link to="/upload">"Upload"</Link> tab.
       </div>

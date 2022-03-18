@@ -55,6 +55,7 @@ export default function Account({
   logoutOfWeb3Modal,
   blockExplorer,
   isContract,
+  tokenBalance,
 }) {
   const { currentTheme } = useThemeSwitcher();
 
@@ -94,7 +95,7 @@ export default function Account({
       {web3Modal && web3Modal.cachedProvider ? (
         <>
           {address && <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />}
-          <Balance address={address} provider={localProvider} price={price} />
+          <Balance address={address} provider={localProvider} price={price} tokenBalance={tokenBalance} />
           <Wallet
             address={address}
             provider={localProvider}
@@ -102,6 +103,7 @@ export default function Account({
             ensProvider={mainnetProvider}
             price={price}
             color={currentTheme === "light" ? "#1890ff" : "#2caad9"}
+            tokenBalance={tokenBalance}
           />
         </>
       ) : useBurner ? (
@@ -117,7 +119,7 @@ export default function Account({
       {useBurner && web3Modal && !web3Modal.cachedProvider ? (
         <>
           <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />
-          <Balance address={address} provider={localProvider} price={price} />
+          <Balance address={address} provider={localProvider} price={price} tokenBalance={tokenBalance} />
           <Wallet
             address={address}
             provider={localProvider}
@@ -125,6 +127,7 @@ export default function Account({
             ensProvider={mainnetProvider}
             price={price}
             color={currentTheme === "light" ? "#1890ff" : "#2caad9"}
+            tokenBalance={tokenBalance}
           />
         </>
       ) : (

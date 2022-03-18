@@ -10,7 +10,10 @@ import { ethers } from "ethers";
  * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
  * @returns react component
  **/
-function Read({ yourLocalBalance, readContracts, auth }) {
+function Read({ yourLocalBalance, readContracts, auth, writeContracts, tx, tokenBalance, setTokenBalance }) {
+  /*
+   * First
+   */
   return (
     <>
       <div>This is the read flow</div>
