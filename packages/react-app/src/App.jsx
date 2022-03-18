@@ -119,25 +119,26 @@ function App(props) {
   const messageToSign = "hello world";
 
   const authorizeWalletWithWebServer = async ({ address, signature }) => {
-    try {
-      const res = await fetch("http://localhost:3033/auth", {
-        headers: {
-          address: address,
-          signature: signature,
-          message: messageToSign,
-        },
-      });
-      // If request failed, return false
-      if (!res || res.status != 200) {
-        return false;
-      }
-      const resJSON = await res.json();
-      // Return the auth value, or default to false
-      return resJSON ? resJSON.auth : false;
-    } catch (e) {
-      console.log(`Error while authorizing session ${e}`);
-    }
-    return false;
+    return true;
+    // try {
+    //   const res = await fetch("http://localhost:3033/auth", {
+    //     headers: {
+    //       address: address,
+    //       signature: signature,
+    //       message: messageToSign,
+    //     },
+    //   });
+    //   // If request failed, return false
+    //   if (!res || res.status != 200) {
+    //     return false;
+    //   }
+    //   const resJSON = await res.json();
+    //   // Return the auth value, or default to false
+    //   return resJSON ? resJSON.auth : false;
+    // } catch (e) {
+    //   console.log(`Error while authorizing session ${e}`);
+    // }
+    // return false;
   };
 
   useEffect(() => {
@@ -305,7 +306,13 @@ function App(props) {
           <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} auth={isSessionAuthenticated} />
         </Route>
         <Route exact path="/upload">
-          <Upload yourLocalBalance={yourLocalBalance} readContracts={readContracts} auth={isSessionAuthenticated} />
+          <Upload
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
+            auth={isSessionAuthenticated}
+            writeContracts={writeContracts}
+            tx={tx}
+          />
         </Route>
         <Route exact path="/read">
           <Read yourLocalBalance={yourLocalBalance} readContracts={readContracts} auth={isSessionAuthenticated} />
@@ -342,46 +349,6 @@ function App(props) {
         {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
           <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
         )}
-      </div>
-
-      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={8}>
-            <Ramp price={price} address={address} networks={NETWORKS} />
-          </Col>
-
-          <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-            <GasGauge gasPrice={gasPrice} />
-          </Col>
-          <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
-            <Button
-              onClick={() => {
-                window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
-              }}
-              size="large"
-              shape="round"
-            >
-              <span style={{ marginRight: 8 }} role="img" aria-label="support">
-                💬
-              </span>
-              Support
-            </Button>
-          </Col>
-        </Row>
-
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={24}>
-            {
-              /*  if the local provider has a signer, let's show the faucet:  */
-              faucetAvailable ? (
-                <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
-              ) : (
-                ""
-              )
-            }
-          </Col>
-        </Row>
       </div>
     </div>
   );
