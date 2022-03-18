@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ethers } from "ethers";
-import { useContractReader } from "eth-hooks";
 import { create } from "ipfs-http-client";
 
 const client = create("https://ipfs.infura.io:5001/api/v0");
@@ -16,17 +15,40 @@ function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx }) {
   const [text, setText] = useState("");
   const [textFileUrl, setTextFileUrl] = useState("");
   const [didStartRecording, setDidStartRecording] = useState(false);
+  const [audioElem, setAudioElem] = useState(null);
+  const [audioFileUrl, setAudioFileUrl] = useState("");
+  const [audioBlob, setAudioBlob] = useState(null);
 
   const handleSubmit = async () => {
-    if (!text) return;
-    // TODO
-    // 1. get text, write to IPFS
-    const added = await client.add(text);
-    const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-    setTextFileUrl(url);
-    // 2. setup livepeer and record
-    // 3. write both to NFT storage api, await response
-    // 4. write to createStory api on smart contract
+    // TODO:
+    // 1. write both to NFT storage api, await response
+    // 2. setup livepeer and record audio that way
+    if (!text || !audioElem) {
+      alert("Be sure to upload both text and audio! Refresh the page to try again");
+      return;
+    }
+    // Get text and audio, write to IPFS
+    const addedText = await client.add(text);
+    const textUrl = `https://ipfs.infura.io/ipfs/${addedText.path}`;
+    const textCIDEncoded = addedText.cid.toV1().toString();
+    setTextFileUrl(textUrl);
+    console.log("Text file url:", textUrl);
+    console.log("AddedText:", JSON.stringify(addedText));
+
+    const addedAudio = await client.add(audioBlob);
+    const audioUrl = `https://ipfs.infura.io/ipfs/${addedAudio.path}`;
+    const audioCIDEncoded = addedAudio.cid.toV1().toString();
+
+    setAudioFileUrl(audioUrl);
+    console.log("Audio file url:", audioUrl);
+    console.log("AddedAudio", JSON.stringify(addedAudio));
+
+    // Write to createStory api on smart contract
+    try {
+      tx(writeContracts.CryptoLingo.createStory(textCIDEncoded, audioCIDEncoded));
+    } catch (e) {
+      console.log("ERR:", e);
+    }
   };
 
   const handleSuccess = stream => {
@@ -54,8 +76,10 @@ function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx }) {
       const blob = new Blob(recordedChunks, {
         type: "audio/webm",
       });
+      setAudioBlob(blob);
       const url = URL.createObjectURL(blob);
       a = document.createElement("a");
+      setAudioElem(a);
       document.body.appendChild(a);
       a.style = "display: none";
       a.href = url;
