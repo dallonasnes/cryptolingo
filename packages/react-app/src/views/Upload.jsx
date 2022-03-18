@@ -2,9 +2,15 @@ import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ethers } from "ethers";
 import { create } from "ipfs-http-client";
+// Import the NFTStorage class and File constructor from the 'nft.storage' package
+import { NFTStorage, File } from "nft.storage";
+
+// The 'mime' npm package helps us set the correct file type on our File objects
+import mime from "mime";
 
 const client = create("https://ipfs.infura.io:5001/api/v0");
-
+const NFT_STORAGE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDUxRGJlN0NkNzAzQjA3MDJhODFFNjVlODhlNzY3RjM2Njg3QkJBOTMiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY0NzU4MTI1MzM3MCwibmFtZSI6ImNyeXB0b2xpbmdvYnVybmVyIn0.G5ZVK10KZDMvUYHX3LQyzJWDr7mdtskj6hy5ubvMbBs";
 /**
  * web3 props can be passed from '../App.jsx' into your local view component for use
  * @param {*} yourLocalBalance balance on current network
@@ -42,6 +48,15 @@ function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx }) {
     setAudioFileUrl(audioUrl);
     console.log("Audio file url:", audioUrl);
     console.log("AddedAudio", JSON.stringify(addedAudio));
+
+    // Now store it all in NFT.storage
+    const nftstorage = new NFTStorage({ token: NFT_STORAGE_KEY });
+    const nftstorageMetadata = await nftstorage.store({
+      image: audioElem,
+      name: "cryptoLingo upload to nft storage",
+      description: text,
+    });
+    debugger;
 
     // Write to createStory api on smart contract
     try {
