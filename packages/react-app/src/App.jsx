@@ -338,6 +338,7 @@ function App(props) {
             tokenBalance={tokenBalance}
             setTokenBalance={setTokenBalance}
             tx={tx}
+            address={address}
           />
         </Route>
         <Route exact path="/read">
@@ -349,6 +350,7 @@ function App(props) {
             tokenBalance={tokenBalance}
             setTokenBalance={setTokenBalance}
             tx={tx}
+            address={address}
           />
         </Route>
       </Switch>

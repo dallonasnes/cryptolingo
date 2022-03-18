@@ -11,7 +11,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
  * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
  * @returns react component
  **/
-function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx, tokenBalance, setTokenBalance }) {
+function Upload({ address, yourLocalBalance, readContracts, auth, writeContracts, tx, tokenBalance, setTokenBalance }) {
   const [text, setText] = useState("");
   const [textFileUrl, setTextFileUrl] = useState("");
   const [didStartRecording, setDidStartRecording] = useState(false);
