@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useContractReader } from "eth-hooks";
 
@@ -21,6 +21,47 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
    *      If owned, then open story component and in there fetch full story and audio
    *      Else show "you haven't purchased"
    */
+
+   const [storyPreviews, setStoryPreviews] = useState([])
+  /*
+    {
+      id: "<text>:<audio>",
+      upvoteCount: 0,
+      downvoteCount: 0,
+      author: address,
+    }
+   */
+  const [textPreviews, setTextPreviews] = useState([])
+
+   
+
+   useEffect(() => {
+     if (readContracts && readContracts.CryptoLingo && storyPreviews.length > 0) {
+       try {
+        const res = await readContracts.CryptoLingo.getStories(address);
+        if (res && res.stories && res.stories.length > 0) {
+          setStoryPreviews(res.stories)
+        }
+       } catch (e) {
+         console.log("ERR:", e)
+       }
+     }
+
+   }, [readContracts])
+
+   useEffect(() => {
+     // To fetch text previews for each story from IPFS
+     if (storyPreviews && storyPreviews.length > 0) {
+       const textPreviewObjects = [];
+        // extract text cid 
+        // fetch text from ipfs client
+        // add first N words of text to object + author name + upvote and downvote count (OBJECT)
+        // append each object to textPreviewObjects
+
+        // then set state
+     }
+   }, [storyPreviews])
+
   return (
     <>
       <div>This is the read flow</div>
