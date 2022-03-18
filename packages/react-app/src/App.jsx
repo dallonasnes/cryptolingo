@@ -281,6 +281,7 @@ function App(props) {
       if (userSigner && readContracts && readContracts.LingoRewards) {
         try {
           const res = await readContracts.LingoRewards.balanceOf(address);
+          // TODO: Handle this as a big number soon
           const balance = Number(res._hex);
           setTokenBalance(balance);
         } catch (e) {
@@ -294,8 +295,6 @@ function App(props) {
   useEffect(() => {
     console.log("Token balance updated:", tokenBalance);
   }, [tokenBalance]);
-
-  const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
   return (
     <div className="App">
