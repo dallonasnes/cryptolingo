@@ -306,7 +306,13 @@ function App(props) {
           <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} auth={isSessionAuthenticated} />
         </Route>
         <Route exact path="/upload">
-          <Upload yourLocalBalance={yourLocalBalance} readContracts={readContracts} auth={isSessionAuthenticated} />
+          <Upload
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
+            auth={isSessionAuthenticated}
+            writeContracts={writeContracts}
+            tx={tx}
+          />
         </Route>
         <Route exact path="/read">
           <Read yourLocalBalance={yourLocalBalance} readContracts={readContracts} auth={isSessionAuthenticated} />
