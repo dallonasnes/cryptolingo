@@ -50,28 +50,30 @@ const handleSuccess = stream => {
     mediaRecorder.stop();
   });
 
-  startButton.addEventListener("click", event => {
-    event.preventDefault();
+  // startButton.addEventListener("click", event => {
+  //   event.preventDefault();
 
-    // If "a" element exists, revoke it's url and start over
-    if (a) {
-      window.URL.revokeObjectURL(a.href);
-      a = undefined;
-    }
+  //   // // If "a" element exists, revoke it's url and start over
+  //   // if (a) {
+  //   //   window.URL.revokeObjectURL(a.href);
+  //   //   a = undefined;
+  //   // }
 
-    // If player source is set to a.href, that's gone now
-    if (player && player.src) {
-      player.src = undefined;
-    }
+  //   // // If player source is set to a.href, that's gone now
+  //   // if (player && player.src) {
+  //   //   player.src = undefined;
+  //   // }
 
-    mediaRecorder.start();
-  });
+  //   // mediaRecorder.start();
+  // });
 
   downloadLink.addEventListener("click", () => {
     if (!a) alert("No uploaded audio to download");
     // Download
     a.click();
   });
+
+  mediaRecorder.start();
 };
 /**
  * web3 props can be passed from '../App.jsx' into your local view component for use
