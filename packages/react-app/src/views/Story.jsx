@@ -4,6 +4,11 @@ import { useContractReader } from "eth-hooks";
 
 import { ethers } from "ethers";
 
+/**
+ * On purchase -> submit approve for, send transaction, update state of purchased content + token balance, make TODO to handle failed transaction
+ * At bottom of screen, put vote button.
+ */
+
 function Story({ address, yourLocalBalance, readContracts, auth, writeContracts, tx, tokenBalance, setTokenBalance }) {
   const history = useHistory();
   const location = useLocation();
@@ -47,6 +52,7 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
 
   useEffect(() => {
     if (audio && fetchDidComplete) {
+      // TODO: will need to free this URL eventually so that people don't steal our data
       const url = URL.createObjectURL(audio);
       const a = document.createElement("a");
       const player = document.getElementById("player");
@@ -58,21 +64,19 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
     }
   }, [audio, fetchDidComplete]);
 
-  let blurStory = true;
-
-  // TODO: get rid of TRUE after debugging
-  if (isPurchased || true) {
-    // Skip for now... just render
-    // fetch story + audio from IPFS
-  } else if (tokenBalance >= storyCost) {
-    // TODO: do you wish to spend your balance? confirm button
-    // Then call handler -> makes tx call to purchaseStory(wallet, storyId)
-    // TODO: how to validate this goes through?
-  } else {
-    alert(
-      `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
-    );
-    history.goBack();
+  // Handle when current story isn't yet purchased
+  if (!isPurchased && !didJustPurchase) {
+    if (tokenBalance >= storyCost) {
+      // TODO: do you wish to spend your balance? confirm button + approve transaction
+      // Then call handler -> makes tx call to purchaseStory(wallet, storyId)
+      // Use setTimeout for 30 seconds, then refresh to see if this id is purchased (show timer too)
+      // TODO: how to validate this goes through?
+    } else {
+      alert(
+        `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
+      );
+      history.goBack();
+    }
   }
   return text && audio ? (
     <>
