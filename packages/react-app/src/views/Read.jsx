@@ -155,37 +155,6 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
     getPurchasedStories();
   }, [storyPreviews]);
 
-  /**
-   * Helper Method Section
-   */
-
-  // const handleStoryClick = storyPreviewMetadata => {
-  //   // TODO: remove TRUE HERE
-  //   if (true || purchasedStoryIds.has(storyPreviewMetadata.id)) {
-  //     // TODO: redirect to full story
-  //     <Link
-  //       to="/story"
-  //       yourLocalBalance={yourLocalBalance}
-  //       readContracts={readContracts}
-  //       writeContracts={writeContracts}
-  //       tokenBalance={tokenBalance}
-  //       setTokenBalance={setTokenBalance}
-  //       tx={tx}
-  //       address={address}
-  //       isPurchased={true}
-  //     />;
-  //   } else if (tokenBalance >= storyCost) {
-  //     // TODO: do you wish to spend your balance? confirm button
-  //     // Then call handler -> makes tx call to purchaseStory(wallet, storyId)
-  //     // TODO: how to validate this goes through?
-  //   } else {
-  //     alert(
-  //       `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
-  //     );
-  //     return;
-  //   }
-  // };
-
   return (
     <>
       <div style={{ margin: "10px" }}>
