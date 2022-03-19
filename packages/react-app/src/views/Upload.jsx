@@ -11,7 +11,7 @@ const client = create("https://ipfs.infura.io:5001/api/v0");
  * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
  * @returns react component
  **/
-function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx }) {
+function Upload({ address, yourLocalBalance, readContracts, auth, writeContracts, tx, tokenBalance, setTokenBalance }) {
   const [text, setText] = useState("");
   const [textFileUrl, setTextFileUrl] = useState("");
   const [didStartRecording, setDidStartRecording] = useState(false);
@@ -34,6 +34,7 @@ function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx }) {
     setTextFileUrl(textUrl);
     console.log("Text file url:", textUrl);
     console.log("AddedText:", JSON.stringify(addedText));
+    console.log("Text CID encoded:", textCIDEncoded);
 
     const addedAudio = await client.add(audioBlob);
     const audioUrl = `https://ipfs.infura.io/ipfs/${addedAudio.path}`;
@@ -42,10 +43,12 @@ function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx }) {
     setAudioFileUrl(audioUrl);
     console.log("Audio file url:", audioUrl);
     console.log("AddedAudio", JSON.stringify(addedAudio));
+    console.log("Audio CID encoded:", audioCIDEncoded);
 
     // Write to createStory api on smart contract
     try {
       tx(writeContracts.CryptoLingo.createStory(textCIDEncoded, audioCIDEncoded));
+      alert("Refresh the page to see your updated token balance");
     } catch (e) {
       console.log("ERR:", e);
     }
@@ -114,7 +117,7 @@ function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx }) {
   };
 
   const handleChange = event => {
-    setText(event.target.value);
+    setText(event.target.value.trim());
   };
 
   return (
@@ -144,7 +147,14 @@ function Upload({ yourLocalBalance, readContracts, auth, writeContracts, tx }) {
       <br />
       <button id="stop">Stop</button>
       <br />
-      <button type="submit" value="Submit" onClick={() => handleSubmit()}>
+      <button
+        type="submit"
+        value="Submit"
+        onClick={() => {
+          if (writeContracts && writeContracts.CryptoLingo) handleSubmit();
+          else setTimeout(() => handleSubmit(), 2000);
+        }}
+      >
         Submit
       </button>
     </>

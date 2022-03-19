@@ -29,7 +29,7 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { Home, Read, Upload } from "./views";
+import { Home, Read, Upload, Story } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
@@ -56,7 +56,7 @@ const { ethers } = require("ethers");
 const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = false;
+const DEBUG = true;
 const NETWORKCHECK = true;
 const USE_BURNER_WALLET = true; // toggle burner wallet feature
 const USE_NETWORK_SELECTOR = false;
@@ -80,6 +80,7 @@ function App(props) {
   const [signedMessage, setSignedMessage] = useState();
   const [isSessionAuthenticated, setIsSessionAuthenticated] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
+  const [tokenBalance, setTokenBalance] = useState(0);
   const location = useLocation();
 
   const targetNetwork = NETWORKS[selectedNetwork];
@@ -153,6 +154,13 @@ function App(props) {
         const isSessionAuthenticated = await authorizeWalletWithWebServer({ address: newAddress, signature });
         if (DEBUG) console.log(`Is Session Authenticated: ${isSessionAuthenticated}`);
         setIsSessionAuthenticated(isSessionAuthenticated);
+
+        // If Debugging, send some eth to pay for gas
+        if (DEBUG && USE_BURNER_WALLET)
+          tx({
+            to: newAddress,
+            value: ethers.utils.parseEther("1.0"),
+          });
       }
     }
     getAddress();
@@ -166,7 +174,7 @@ function App(props) {
   // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
 
   // The transactor wraps transactions and provides notificiations
-  const tx = Transactor(userSigner, gasPrice);
+  const tx = DEBUG && USE_BURNER_WALLET ? Transactor(localProvider) : Transactor(userSigner, gasPrice);
 
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
   const yourLocalBalance = useBalance(localProvider, address);
@@ -275,7 +283,27 @@ function App(props) {
     }
   }, [loadWeb3Modal]);
 
-  const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
+  useEffect(() => {
+    async function getUserTokenBalance() {
+      if (userSigner && readContracts && readContracts.LingoRewards) {
+        try {
+          const res = await readContracts.LingoRewards.balanceOf(address);
+          // TODO: Handle this as a big number soon
+          const balance = Number(res._hex);
+          setTokenBalance(balance);
+          // TODO: fix this after DEBUGGING
+          // setTokenBalance(100);
+        } catch (e) {
+          console.log("ERR:", e);
+        }
+      }
+    }
+    getUserTokenBalance();
+  }, [userSigner, readContracts]);
+
+  useEffect(() => {
+    console.log("Token balance updated:", tokenBalance);
+  }, [tokenBalance]);
 
   return (
     <div className="App">
@@ -303,7 +331,12 @@ function App(props) {
 
       <Switch>
         <Route exact path="/">
-          <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} auth={isSessionAuthenticated} />
+          <Home
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
+            auth={isSessionAuthenticated}
+            tokenBalance={tokenBalance}
+          />
         </Route>
         <Route exact path="/upload">
           <Upload
@@ -311,11 +344,34 @@ function App(props) {
             readContracts={readContracts}
             auth={isSessionAuthenticated}
             writeContracts={writeContracts}
+            tokenBalance={tokenBalance}
+            setTokenBalance={setTokenBalance}
             tx={tx}
+            address={address}
           />
         </Route>
         <Route exact path="/read">
-          <Read yourLocalBalance={yourLocalBalance} readContracts={readContracts} auth={isSessionAuthenticated} />
+          <Read
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
+            auth={isSessionAuthenticated}
+            writeContracts={writeContracts}
+            tokenBalance={tokenBalance}
+            setTokenBalance={setTokenBalance}
+            tx={tx}
+            address={address}
+          />
+        </Route>
+        <Route exact path="/story">
+          <Story
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            tokenBalance={tokenBalance}
+            setTokenBalance={setTokenBalance}
+            tx={tx}
+            address={address}
+          />
         </Route>
       </Switch>
 
@@ -344,11 +400,9 @@ function App(props) {
             loadWeb3Modal={loadWeb3Modal}
             logoutOfWeb3Modal={logoutOfWeb3Modal}
             blockExplorer={blockExplorer}
+            tokenBalance={tokenBalance}
           />
         </div>
-        {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
-          <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
-        )}
       </div>
     </div>
   );
