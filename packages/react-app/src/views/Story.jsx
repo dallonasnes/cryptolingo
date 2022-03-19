@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import { useContractReader } from "eth-hooks";
-
+import Modal from "react-modal";
 import { ethers } from "ethers";
+
+Modal.setAppElement("#root");
 
 /**
  * On purchase -> submit approve for, send transaction, update state of purchased content + token balance, make TODO to handle failed transaction
@@ -64,9 +66,24 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
     }
   }, [audio, fetchDidComplete]);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
+
   // Handle when current story isn't yet purchased
   if (!isPurchased && !didJustPurchase) {
     if (tokenBalance >= storyCost) {
+      // TODO: validate transactions before updating balance and showing token
+      return (
+        <div style={{ margin: "10px" }}>
+          <button onClick={toggleModal}>Open modal</button>
+
+          <Modal isOpen={isOpen} onRequestClose={toggleModal} contentLabel="My dialog">
+            <div>My modal dialog.</div>
+            <button onClick={toggleModal}>Close modal</button>
+          </Modal>
+        </div>
+      );
+
       // TODO: do you wish to spend your balance? confirm button + approve transaction
       // Then call handler -> makes tx call to purchaseStory(wallet, storyId)
       // Use setTimeout for 30 seconds, then refresh to see if this id is purchased (show timer too)
