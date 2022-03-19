@@ -29,7 +29,7 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { Home, Read, Upload } from "./views";
+import { Home, Read, Upload, Story } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
@@ -346,6 +346,17 @@ function App(props) {
             yourLocalBalance={yourLocalBalance}
             readContracts={readContracts}
             auth={isSessionAuthenticated}
+            writeContracts={writeContracts}
+            tokenBalance={tokenBalance}
+            setTokenBalance={setTokenBalance}
+            tx={tx}
+            address={address}
+          />
+        </Route>
+        <Route exact path="/story">
+          <Story
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
             writeContracts={writeContracts}
             tokenBalance={tokenBalance}
             setTokenBalance={setTokenBalance}

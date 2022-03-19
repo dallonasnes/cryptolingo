@@ -22,6 +22,9 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
    *      Else show "you haven't purchased"
    */
 
+  /**
+   * Data Fetching Section
+   */
   const [storyCost, setStoryCost] = useState(10); // default value
   useEffect(() => {
     async function fetchStoryCost() {
@@ -61,7 +64,7 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
     async function fetchStories() {
       if (readContracts && readContracts.CryptoLingo) {
         try {
-          const res = await readContracts.CryptoLingo.getStories(address);
+          const res = await readContracts.CryptoLingo.getStories();
           if (res && res.stories && res.stories.length > 0) {
             const dict = {};
             res.stories.map(obj => (dict[id] = obj));
@@ -152,28 +155,36 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
     getPurchasedStories();
   }, [storyPreviews]);
 
-  /*{
-      id: "<text>:<audio>",
-      textCID: "",
-      textPreview: "",
-      upvoteCount: 0,
-      downvoteCount: 0,
-      author: address,
-    } */
-  const handleStoryClick = storyPreviewMetadata => {
-    if (purchasedStoryIds.has(storyPreviewMetadata.id)) {
-      // TODO: redirect to full story
-    } else if (tokenBalance >= storyCost) {
-      // TODO: do you wish to spend your balance? confirm button
-      // Then call handler -> makes tx call to purchaseStory(wallet, storyId)
-      // TODO: how to validate this goes through?
-    } else {
-      alert(
-        `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
-      );
-      return;
-    }
-  };
+  /**
+   * Helper Method Section
+   */
+
+  // const handleStoryClick = storyPreviewMetadata => {
+  //   // TODO: remove TRUE HERE
+  //   if (true || purchasedStoryIds.has(storyPreviewMetadata.id)) {
+  //     // TODO: redirect to full story
+  //     <Link
+  //       to="/story"
+  //       yourLocalBalance={yourLocalBalance}
+  //       readContracts={readContracts}
+  //       writeContracts={writeContracts}
+  //       tokenBalance={tokenBalance}
+  //       setTokenBalance={setTokenBalance}
+  //       tx={tx}
+  //       address={address}
+  //       isPurchased={true}
+  //     />;
+  //   } else if (tokenBalance >= storyCost) {
+  //     // TODO: do you wish to spend your balance? confirm button
+  //     // Then call handler -> makes tx call to purchaseStory(wallet, storyId)
+  //     // TODO: how to validate this goes through?
+  //   } else {
+  //     alert(
+  //       `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
+  //     );
+  //     return;
+  //   }
+  // };
 
   return (
     <>
@@ -182,15 +193,27 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
       </div>
       {storyPreviews && storyPreviews.length > 0 ? (
         storyPreviews.map(obj => {
+          const isPurchased = purchasedStoryIds.has(obj.id);
           return (
-            <button onClick={() => handleStoryClick(obj)}>
-              <div style={{ margin: "10px" }} id={obj.id}>
-                <div>Story preview {obj.textPreview}</div>
-                <div>Upvotes: {obj.upvoteCount}</div>
-                <div>Downvotes: {obj.downvoteCount}</div>
-                {purchasedStoryIds.has(obj.id) ? <div>PURCHASED ALREADY</div> : null}
-              </div>
-            </button>
+            <Link
+              to={{
+                pathname: "/story",
+                state: {
+                  isPurchased,
+                  storyMetadata: obj,
+                  storyCost,
+                },
+              }}
+            >
+              <button>
+                <div style={{ margin: "10px" }} id={obj.id}>
+                  <div>Story preview {obj.textPreview}</div>
+                  <div>Upvotes: {obj.upvoteCount}</div>
+                  <div>Downvotes: {obj.downvoteCount}</div>
+                  {isPurchased ? <div>PURCHASED ALREADY</div> : null}
+                </div>
+              </button>
+            </Link>
           );
         })
       ) : (
