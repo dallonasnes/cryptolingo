@@ -22,7 +22,7 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
    *      Else show "you haven't purchased"
    */
 
-   const [storyPreviews, setStoryPreviews] = useState([])
+  const [storyPreviews, setStoryPreviews] = useState([]);
   /*
     {
       id: "<text>:<audio>",
@@ -31,36 +31,72 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
       author: address,
     }
    */
-  const [textPreviews, setTextPreviews] = useState([])
+  const [textPreviews, setTextPreviews] = useState([]);
+  /*
+    {
+      id: "<text>:<audio>",
+      textCID: "",
+      textPreview: "",
+      upvoteCount: 0,
+      downvoteCount: 0,
+      author: address,
+    }
+   */
 
-   
-
-   useEffect(() => {
-     if (readContracts && readContracts.CryptoLingo && storyPreviews.length > 0) {
-       try {
-        const res = await readContracts.CryptoLingo.getStories(address);
-        if (res && res.stories && res.stories.length > 0) {
-          setStoryPreviews(res.stories)
+  useEffect(() => {
+    async function fetchStories() {
+      if (readContracts && readContracts.CryptoLingo && storyPreviews.length > 0) {
+        try {
+          const res = await readContracts.CryptoLingo.getStories(address);
+          if (res && res.stories && res.stories.length > 0) {
+            setStoryPreviews(res.stories);
+          }
+        } catch (e) {
+          console.log("ERR:", e);
         }
-       } catch (e) {
-         console.log("ERR:", e)
-       }
-     }
+      }
+    }
+    fetchStories();
+  }, [readContracts]);
 
-   }, [readContracts])
+  const getFirstNWords = ({ n, text }) => {
+    // TODO
+    return "Hello world";
+  };
 
-   useEffect(() => {
-     // To fetch text previews for each story from IPFS
-     if (storyPreviews && storyPreviews.length > 0) {
-       const textPreviewObjects = [];
-        // extract text cid 
-        // fetch text from ipfs client
-        // add first N words of text to object + author name + upvote and downvote count (OBJECT)
-        // append each object to textPreviewObjects
-
-        // then set state
-     }
-   }, [storyPreviews])
+  useEffect(() => {
+    // To fetch text previews for each story from IPFS
+    async function buildTextPreviews() {
+      if (storyPreviews && storyPreviews.length > 0) {
+        try {
+          const textPreviewObjects = await Promise.all(
+            storyPreviews.map(async previewObject => {
+              try {
+                // Extract text cid
+                const textCID = previewObject.id.split(":")[0]; // because text comes first
+                // Fetch text from ipfs client
+                const res = await fetch(`ipfs.io/ipfs/${textCID}`);
+                debugger;
+                // Add first N words of text to object + author name + upvote and downvote count (OBJECT)
+                return {
+                  ...previewObject,
+                  textCID,
+                  // text Preview is first 10 words of the preview
+                  textPreview: getFirstNWords({ n: 10, text: res.data }),
+                };
+              } catch (e) {
+                throw e;
+              }
+            }),
+          );
+          setTextPreviews(textPreviewObjects);
+        } catch (e) {
+          console.log("ERR:", e);
+        }
+      }
+    }
+    buildTextPreviews();
+  }, [storyPreviews]);
 
   return (
     <>

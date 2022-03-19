@@ -145,7 +145,14 @@ function Upload({ address, yourLocalBalance, readContracts, auth, writeContracts
       <br />
       <button id="stop">Stop</button>
       <br />
-      <button type="submit" value="Submit" onClick={() => handleSubmit()}>
+      <button
+        type="submit"
+        value="Submit"
+        onClick={() => {
+          if (writeContracts && writeContracts.CryptoLingo) handleSubmit();
+          else setTimeout(() => handleSubmit(), 2000);
+        }}
+      >
         Submit
       </button>
     </>
