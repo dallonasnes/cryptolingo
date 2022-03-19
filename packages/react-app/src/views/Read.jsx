@@ -40,7 +40,6 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
       upvoteCount: 0,
       downvoteCount: 0,
       author: address,
-      isPurchasedId: "", // this is the id field with the : removed
     }
    */
   const [purchasedStoryIds, setPurchasedStoryIds] = useState(new Set([]));
@@ -144,7 +143,6 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
       upvoteCount: 0,
       downvoteCount: 0,
       author: address,
-      isPurchasedId: "", // this is the id field with the : removed
     } */}
       {storyPreviews && storyPreviews.length > 0 ? (
         storyPreviews.map(obj => {
@@ -153,6 +151,7 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
               <div>Story preview {obj.textPreview}</div>
               <div>Upvotes: {obj.upvoteCount}</div>
               <div>Downvotes: {obj.downvoteCount}</div>
+              {purchasedStoryIds.has(obj.id) ? <div>PURCHASED ALREADY</div> : null}
             </div>
           );
         })
