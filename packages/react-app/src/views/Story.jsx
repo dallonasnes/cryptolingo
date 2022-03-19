@@ -14,9 +14,17 @@ Modal.setAppElement("#root");
 function Story({ address, yourLocalBalance, readContracts, auth, writeContracts, tx, tokenBalance, setTokenBalance }) {
   const history = useHistory();
   const location = useLocation();
-  const { isPurchased, storyMetadata, storyCost } = location.state;
+  const { storyMetadata, storyCost } = location.state;
+  const wasAlreadyPurchased = location.state.isPurchased;
+  if (!wasAlreadyPurchased && Number(tokenBalance) < Number(storyCost)) {
+    alert(
+      `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
+    );
+    history.goBack();
+  }
 
-  const [didJustPurchase, setDidJustPurchase] = useState(false);
+  const [isPurchased, setIsPurchased] = useState(wasAlreadyPurchased);
+
   const [fetchDidComplete, setFetchDidComplete] = useState(false);
   const [text, setText] = useState(null);
   const [audio, setAudio] = useState(null);
@@ -25,7 +33,7 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
     async function fetchData() {
       // Only fetch if did purchase, isAlreadyPurchased and hasn't yet fetched
       // TODO: remove TRUE after debugging
-      if ((isPurchased || didJustPurchase || true) && !fetchDidComplete) {
+      if ((isPurchased || true) && !fetchDidComplete) {
         // const textCID = id.substring(0, id.length / 2); // text CID comes first
         // const audioCID = id.substring(id.length / 2); // audio CID comes second
 
@@ -66,37 +74,44 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
     }
   }, [audio, fetchDidComplete]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(!isPurchased && Number(tokenBalance) >= Number(storyCost));
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
-  // Handle when current story isn't yet purchased
-  if (!isPurchased && !didJustPurchase) {
-    if (tokenBalance >= storyCost) {
-      // TODO: validate transactions before updating balance and showing token
-      return (
-        <div style={{ margin: "10px" }}>
-          <button onClick={toggleModal}>Open modal</button>
-
-          <Modal isOpen={isOpen} onRequestClose={toggleModal} contentLabel="My dialog">
-            <div>My modal dialog.</div>
-            <button onClick={toggleModal}>Close modal</button>
-          </Modal>
-        </div>
+  const handlePurchaseApprove = () => {
+    // TODO: validate the requests succeed and fetch to update token balance
+    try {
+      // Approve max transaction amount so contract can move tokens to/from user wallet
+      tx(
+        writeContracts.LingoRewards.approve(
+          address,
+          ethers.BigNumber.from("115792089237316195423570985008687907853269984665640564039457584007913129639935"),
+        ),
       );
-
-      // TODO: do you wish to spend your balance? confirm button + approve transaction
-      // Then call handler -> makes tx call to purchaseStory(wallet, storyId)
-      // Use setTimeout for 30 seconds, then refresh to see if this id is purchased (show timer too)
-      // TODO: how to validate this goes through?
-    } else {
-      alert(
-        `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
-      );
-      history.goBack();
+      // Purchase story
+      tx(writeContracts.CryptoLingo.purchaseStory(wallet, storyMetadata.id));
+      setTokenBalance(Number(tokenBalance) - Number(storyCost));
+      setIsPurchased(true);
+    } catch (e) {
+      console.log("ERR:", e);
     }
-  }
+    toggleModal();
+  };
+
+  const handlePurchaseDecline = () => {
+    toggleModal();
+    history.goBack();
+  };
+
   return text && audio ? (
     <>
+      <div style={{ margin: "10px" }}>
+        <Modal isOpen={isModalOpen} onRequestClose={toggleModal} contentLabel="My dialog">
+          <div style={{ margin: "10px", display: "flex" }}>
+            <button onClick={() => handlePurchaseDecline()}>Reject</button>
+            <button onClick={() => handlePurchaseApprove()}>Approve</button>
+          </div>
+        </Modal>
+      </div>
       <div>
         <h2>Read your story!</h2>
       </div>

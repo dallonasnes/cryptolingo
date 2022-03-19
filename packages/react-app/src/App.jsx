@@ -56,7 +56,7 @@ const { ethers } = require("ethers");
 const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = false;
+const DEBUG = true;
 const NETWORKCHECK = true;
 const USE_BURNER_WALLET = true; // toggle burner wallet feature
 const USE_NETWORK_SELECTOR = false;
@@ -154,6 +154,13 @@ function App(props) {
         const isSessionAuthenticated = await authorizeWalletWithWebServer({ address: newAddress, signature });
         if (DEBUG) console.log(`Is Session Authenticated: ${isSessionAuthenticated}`);
         setIsSessionAuthenticated(isSessionAuthenticated);
+
+        // If Debugging, send some eth to pay for gas
+        if (DEBUG && USE_BURNER_WALLET)
+          tx({
+            to: newAddress,
+            value: ethers.utils.parseEther("1.0"),
+          });
       }
     }
     getAddress();
@@ -167,7 +174,7 @@ function App(props) {
   // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
 
   // The transactor wraps transactions and provides notificiations
-  const tx = Transactor(userSigner, gasPrice);
+  const tx = DEBUG && USE_BURNER_WALLET ? Transactor(localProvider) : Transactor(userSigner, gasPrice);
 
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
   const yourLocalBalance = useBalance(localProvider, address);
