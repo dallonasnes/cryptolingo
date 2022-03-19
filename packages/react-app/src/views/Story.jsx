@@ -9,9 +9,59 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
   const location = useLocation();
   const { isPurchased, storyMetadata, storyCost } = location.state;
 
+  const [didJustPurchase, setDidJustPurchase] = useState(false);
+  const [fetchDidComplete, setFetchDidComplete] = useState(false);
+  const [text, setText] = useState(null);
+  const [audio, setAudio] = useState(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      // Only fetch if did purchase, isAlreadyPurchased and hasn't yet fetched
+      // TODO: remove TRUE after debugging
+      if ((isPurchased || didJustPurchase || true) && !fetchDidComplete) {
+        // const textCID = id.substring(0, id.length / 2); // text CID comes first
+        // const audioCID = id.substring(id.length / 2); // audio CID comes second
+
+        // TODO: UNCOMMENT AFTER DEBUGGING
+        const textCID = "bafybeih2slq7woea2scmzyt52sws23xvploktnr6ubd6bvep3udxrau3ce";
+        const audioCID = "bafybeibnpnhblqsa6wjuk7gzbf4bbq5dz2e6kfq2n3dhha4vispv2hoizq";
+        try {
+          const [textBlob, audioBlob] = await Promise.all([
+            fetch(`https://ipfs.io/ipfs/${textCID}`),
+            fetch(`https://ipfs.io/ipfs/${audioCID}`),
+          ]);
+
+          const text = await textBlob.text();
+          const audio = await audioBlob.blob();
+
+          setText(text);
+          setAudio(audio);
+          setFetchDidComplete(true);
+        } catch (e) {
+          console.log("ERR:", e);
+        }
+      }
+    }
+    fetchData();
+  }, [fetchDidComplete]);
+
+  useEffect(() => {
+    if (audio && fetchDidComplete) {
+      const url = URL.createObjectURL(audio);
+      const a = document.createElement("a");
+      const player = document.getElementById("player");
+      document.body.appendChild(a);
+      a.style = "display: none";
+      a.href = url;
+      a.download = "yourAudio.wav";
+      player.src = url;
+    }
+  }, [audio, fetchDidComplete]);
+
   let blurStory = true;
 
-  if (isPurchased) {
+  // TODO: get rid of TRUE after debugging
+  if (isPurchased || true) {
     // Skip for now... just render
     // fetch story + audio from IPFS
   } else if (tokenBalance >= storyCost) {
@@ -24,7 +74,19 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
     );
     history.goBack();
   }
-  return <div>Hello jauy</div>;
+  return text && audio ? (
+    <>
+      <div>
+        <h2>Read your story!</h2>
+      </div>
+      <div style={{ margin: "10px" }}>
+        <audio id="player" controls></audio>
+        <div style={{ margin: "10px" }}>{text}</div>
+      </div>
+    </>
+  ) : (
+    <div style={{ margin: "10px" }}>Loading, please wait</div>
+  );
 }
 
 export default Story;
