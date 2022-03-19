@@ -34,7 +34,7 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
   const [storyPreviews, setStoryPreviews] = useState([]);
   /*
     {
-      id: "<text>:<audio>",
+      id: "<text><audio>",
       textCID: "",
       textPreview: "",
       upvoteCount: 0,
@@ -43,20 +43,43 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
       isPurchasedId: "", // this is the id field with the : removed
     }
    */
-  const [purchasedStoryIds, setPurchasedStoryIds] = useState([]);
+  const [purchasedStoryIds, setPurchasedStoryIds] = useState(new Set([]));
 
   useEffect(() => {
     async function fetchStories() {
-      if (readContracts && readContracts.CryptoLingo && storyPreviewMetadatas.length > 0) {
-        try {
-          const res = await readContracts.CryptoLingo.getStories(address);
-          if (res && res.stories && res.stories.length > 0) {
-            setStoryPreviewMetadatas(res.stories);
-          }
-        } catch (e) {
-          console.log("ERR:", e);
-        }
-      }
+      // TODO: uncomment ME after DEBUGGING
+      // if (readContracts && readContracts.CryptoLingo && storyPreviewMetadatas.length > 0) {
+      //   try {
+      //     const res = await readContracts.CryptoLingo.getStories(address);
+      //     if (res && res.stories && res.stories.length > 0) {
+      //       // TODO: sort by net upvote count
+      //       setStoryPreviewMetadatas(res.stories);
+      //     }
+      //   } catch (e) {
+      //     console.log("ERR:", e);
+      //   }
+      // }
+      const tmp = [
+        {
+          id: "bafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5ybafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7qohj5mq3sjj4g7v5y",
+          upvoteCount: 5,
+          downvoteCount: 2,
+          author: address,
+        },
+        {
+          id: "bafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5ybafybeiaoporrmlqo6vpn4z52hfvpaavknxyrq8777rohj5mq3sjj4g7v5y",
+          upvoteCount: 9,
+          downvoteCount: 12,
+          author: address,
+        },
+        {
+          id: "bafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5ybafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5y",
+          upvoteCount: 88,
+          downvoteCount: 2,
+          author: address,
+        },
+      ];
+      setStoryPreviewMetadatas(tmp);
     }
     fetchStories();
   }, [readContracts]);
@@ -73,7 +96,7 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
                 const id = previewMetadataObject.id;
                 const textCID = id.substring(0, id.length / 2); // because text comes first
                 // Fetch text from ipfs client
-                const res = await fetch(`ipfs.io/ipfs/${textCID}`);
+                const res = await fetch(`https://ipfs.io/ipfs/${textCID}`);
                 const resText = await res.text();
                 return {
                   ...previewMetadataObject,
@@ -101,7 +124,7 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
         try {
           const res = await readContracts.CryptoLingo.storiesPurchased(address);
           if (res && res.length > 0) {
-            const purchasedStoryIds = res.map(storyObj => storyObj.id);
+            const purchasedStoryIds = new Set(res.map(storyObj => storyObj.id));
             setPurchasedStoryIds(purchasedStoryIds);
           }
         } catch (e) {
@@ -114,7 +137,28 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
 
   return (
     <>
-      <div>This is the read flow</div>
+      {/*{
+      id: "<text>:<audio>",
+      textCID: "",
+      textPreview: "",
+      upvoteCount: 0,
+      downvoteCount: 0,
+      author: address,
+      isPurchasedId: "", // this is the id field with the : removed
+    } */}
+      {storyPreviews && storyPreviews.length > 0 ? (
+        storyPreviews.map(obj => {
+          return (
+            <div style={{ margin: "10px" }} id={obj.id}>
+              <div>Story preview {obj.textPreview}</div>
+              <div>Upvotes: {obj.upvoteCount}</div>
+              <div>Downvotes: {obj.downvoteCount}</div>
+            </div>
+          );
+        })
+      ) : (
+        <div style={{ margin: "10px" }}>Someone needs to upload some stories to get started!</div>
+      )}
     </>
   );
 }
