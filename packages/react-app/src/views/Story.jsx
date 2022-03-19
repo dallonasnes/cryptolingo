@@ -6,11 +6,6 @@ import { ethers } from "ethers";
 
 Modal.setAppElement("#root");
 
-/**
- * On purchase -> submit approve for, send transaction, update state of purchased content + token balance, make TODO to handle failed transaction
- * At bottom of screen, put vote button.
- */
-
 function Story({ address, yourLocalBalance, readContracts, auth, writeContracts, tx, tokenBalance, setTokenBalance }) {
   const history = useHistory();
   const location = useLocation();
@@ -32,14 +27,14 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
   useEffect(() => {
     async function fetchData() {
       // Only fetch if did purchase, isAlreadyPurchased and hasn't yet fetched
-      // TODO: remove TRUE after debugging
-      if ((isPurchased || true) && !fetchDidComplete) {
-        // const textCID = id.substring(0, id.length / 2); // text CID comes first
-        // const audioCID = id.substring(id.length / 2); // audio CID comes second
+      // TODO: remove || TRUE after debugging
+      if (isPurchased && !fetchDidComplete) {
+        const textCID = id.substring(0, id.length / 2); // text CID comes first
+        const audioCID = id.substring(id.length / 2); // audio CID comes second
 
-        // TODO: UNCOMMENT AFTER DEBUGGING
-        const textCID = "bafybeih2slq7woea2scmzyt52sws23xvploktnr6ubd6bvep3udxrau3ce";
-        const audioCID = "bafybeibnpnhblqsa6wjuk7gzbf4bbq5dz2e6kfq2n3dhha4vispv2hoizq";
+        // TODO: UNCOMMENT ABOVE AND COMMENT AFTER DEBUGGING
+        // const textCID = "bafybeih2slq7woea2scmzyt52sws23xvploktnr6ubd6bvep3udxrau3ce";
+        // const audioCID = "bafybeibnpnhblqsa6wjuk7gzbf4bbq5dz2e6kfq2n3dhha4vispv2hoizq";
         try {
           const [textBlob, audioBlob] = await Promise.all([
             fetch(`https://ipfs.io/ipfs/${textCID}`),
@@ -102,6 +97,16 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
     history.goBack();
   };
 
+  const handleVote = ({ isUpvote }) => {
+    try {
+      tx(writeContracts.CryptoLingo.vote(wallet, storyMetadata.id, isUpvote));
+      // TODO: track if they've already voted, so they can't game this
+      // setTokenBalance(tokenBalance + 3); // Get 3 tokens back for voting
+    } catch (e) {
+      console.log("ERR:", e);
+    }
+  };
+
   return text && audio ? (
     <>
       <div style={{ margin: "10px" }}>
@@ -118,6 +123,14 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
       <div style={{ margin: "10px" }}>
         <audio id="player" controls></audio>
         <div style={{ margin: "10px" }}>{text}</div>
+      </div>
+      <div style={{ margin: "20px" }}>
+        <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: false })}>
+          <img alt="x" src={"../../x-mark.svg"} />
+        </button>
+        <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: true })}>
+          <img alt="heart" src={"../../heart.svg"} />
+        </button>
       </div>
     </>
   ) : (

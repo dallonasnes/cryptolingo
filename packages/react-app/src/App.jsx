@@ -290,9 +290,9 @@ function App(props) {
           const res = await readContracts.LingoRewards.balanceOf(address);
           // TODO: Handle this as a big number soon
           const balance = Number(res._hex);
+          setTokenBalance(balance);
           // TODO: fix this after DEBUGGING
-          setTokenBalance(100);
-          // setTokenBalance(balance);
+          // setTokenBalance(100);
         } catch (e) {
           console.log("ERR:", e);
         }
