@@ -40,8 +40,10 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
       upvoteCount: 0,
       downvoteCount: 0,
       author: address,
+      isPurchasedId: "", // this is the id field with the : removed
     }
    */
+  const [purchasedStoryIds, setPurchasedStoryIds] = useState([]);
 
   useEffect(() => {
     async function fetchStories() {
@@ -68,7 +70,8 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
             storyPreviewMetadatas.map(async previewMetadataObject => {
               try {
                 // Extract text cid
-                const textCID = previewMetadataObject.id.split(":")[0]; // because text comes first
+                const id = previewMetadataObject.id;
+                const textCID = id.substring(0, id.length / 2); // because text comes first
                 // Fetch text from ipfs client
                 const res = await fetch(`ipfs.io/ipfs/${textCID}`);
                 const resText = await res.text();
@@ -91,6 +94,23 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
     }
     buildTextPreviews();
   }, [storyPreviewMetadatas]);
+
+  useEffect(() => {
+    async function getPurchasedStories() {
+      if (readContracts && readContracts.CryptoLingo) {
+        try {
+          const res = await readContracts.CryptoLingo.storiesPurchased(address);
+          if (res && res.length > 0) {
+            const purchasedStoryIds = res.map(storyObj => storyObj.id);
+            setPurchasedStoryIds(purchasedStoryIds);
+          }
+        } catch (e) {
+          console.log("ERR:", e);
+        }
+      }
+    }
+    getPurchasedStories();
+  }, [storyPreviews]);
 
   return (
     <>
