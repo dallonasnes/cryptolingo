@@ -22,7 +22,7 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
    *      Else show "you haven't purchased"
    */
 
-  const [storyPreviews, setStoryPreviews] = useState([]);
+  const [storyPreviewMetadatas, setStoryPreviewMetadatas] = useState([]);
   /*
     {
       id: "<text>:<audio>",
@@ -31,7 +31,7 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
       author: address,
     }
    */
-  const [textPreviews, setTextPreviews] = useState([]);
+  const [storyPreviews, setStoryPreviews] = useState([]);
   /*
     {
       id: "<text>:<audio>",
@@ -45,11 +45,11 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
 
   useEffect(() => {
     async function fetchStories() {
-      if (readContracts && readContracts.CryptoLingo && storyPreviews.length > 0) {
+      if (readContracts && readContracts.CryptoLingo && storyPreviewMetadatas.length > 0) {
         try {
           const res = await readContracts.CryptoLingo.getStories(address);
           if (res && res.stories && res.stories.length > 0) {
-            setStoryPreviews(res.stories);
+            setStoryPreviewMetadatas(res.stories);
           }
         } catch (e) {
           console.log("ERR:", e);
@@ -59,26 +59,21 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
     fetchStories();
   }, [readContracts]);
 
-  const getFirstNWords = ({ n, text }) => {
-    // TODO
-    return "Hello world";
-  };
-
   useEffect(() => {
     // To fetch text previews for each story from IPFS
     async function buildTextPreviews() {
-      if (storyPreviews && storyPreviews.length > 0) {
+      if (storyPreviewMetadatas && storyPreviewMetadatas.length > 0) {
         try {
           const textPreviewObjects = await Promise.all(
-            storyPreviews.map(async previewObject => {
+            storyPreviewMetadatas.map(async previewMetadataObject => {
               try {
                 // Extract text cid
-                const textCID = previewObject.id.split(":")[0]; // because text comes first
+                const textCID = previewMetadataObject.id.split(":")[0]; // because text comes first
                 // Fetch text from ipfs client
                 const res = await fetch(`ipfs.io/ipfs/${textCID}`);
                 const resText = await res.text();
                 return {
-                  ...previewObject,
+                  ...previewMetadataObject,
                   textCID,
                   // textPreview is first 10 words of the preview
                   textPreview: resText.split(" ").slice(0, 10).join(" "),
@@ -88,14 +83,14 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
               }
             }),
           );
-          setTextPreviews(textPreviewObjects);
+          setStoryPreviews(textPreviewObjects);
         } catch (e) {
           console.log("ERR:", e);
         }
       }
     }
     buildTextPreviews();
-  }, [storyPreviews]);
+  }, [storyPreviewMetadatas]);
 
   return (
     <>
