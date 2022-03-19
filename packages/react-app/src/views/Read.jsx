@@ -22,6 +22,19 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
    *      Else show "you haven't purchased"
    */
 
+  const [storyCost, setStoryCost] = useState(10); // default value
+  useEffect(() => {
+    async function fetchStoryCost() {
+      if (readContracts && readContracts.CryptoLingo) {
+        const res = await readContracts.CryptoLingo.storyCost();
+        // TODO: deal with big numbers / decimals here
+        const cost = Number(res._hex);
+        setStoryCost(cost);
+      }
+    }
+    fetchStoryCost();
+  }, [readContracts]);
+
   const [storyPreviewMetadatas, setStoryPreviewMetadatas] = useState({});
   /*
     {
@@ -139,29 +152,45 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
     getPurchasedStories();
   }, [storyPreviews]);
 
-  return (
-    <>
-      {/*{
+  /*{
       id: "<text>:<audio>",
       textCID: "",
       textPreview: "",
       upvoteCount: 0,
       downvoteCount: 0,
       author: address,
-    } */}
+    } */
+  const handleStoryClick = storyPreviewMetadata => {
+    if (purchasedStoryIds.has(storyPreviewMetadata.id)) {
+      // TODO: redirect to full story
+    } else if (tokenBalance >= storyCost) {
+      // TODO: do you wish to spend your balance? confirm button
+      // Then call handler -> makes tx call to purchaseStory(wallet, storyId)
+      // TODO: how to validate this goes through?
+    } else {
+      alert(
+        `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
+      );
+      return;
+    }
+  };
+
+  return (
+    <>
+      <div style={{ margin: "10px" }}>
+        Each story costs {storyCost} cryptoLingo tokens. Click a story to purchase it.
+      </div>
       {storyPreviews && storyPreviews.length > 0 ? (
         storyPreviews.map(obj => {
           return (
-            <a>
-              <button>
-                <div style={{ margin: "10px" }} id={obj.id}>
-                  <div>Story preview {obj.textPreview}</div>
-                  <div>Upvotes: {obj.upvoteCount}</div>
-                  <div>Downvotes: {obj.downvoteCount}</div>
-                  {purchasedStoryIds.has(obj.id) ? <div>PURCHASED ALREADY</div> : null}
-                </div>
-              </button>
-            </a>
+            <button onClick={() => handleStoryClick(obj)}>
+              <div style={{ margin: "10px" }} id={obj.id}>
+                <div>Story preview {obj.textPreview}</div>
+                <div>Upvotes: {obj.upvoteCount}</div>
+                <div>Downvotes: {obj.downvoteCount}</div>
+                {purchasedStoryIds.has(obj.id) ? <div>PURCHASED ALREADY</div> : null}
+              </div>
+            </button>
           );
         })
       ) : (
