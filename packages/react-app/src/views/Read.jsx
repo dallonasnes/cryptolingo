@@ -76,13 +76,12 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
                 const textCID = previewObject.id.split(":")[0]; // because text comes first
                 // Fetch text from ipfs client
                 const res = await fetch(`ipfs.io/ipfs/${textCID}`);
-                debugger;
-                // Add first N words of text to object + author name + upvote and downvote count (OBJECT)
+                const resText = await res.text();
                 return {
                   ...previewObject,
                   textCID,
-                  // text Preview is first 10 words of the preview
-                  textPreview: getFirstNWords({ n: 10, text: res.data }),
+                  // textPreview is first 10 words of the preview
+                  textPreview: resText.split(" ").slice(0, 10).join(" "),
                 };
               } catch (e) {
                 throw e;

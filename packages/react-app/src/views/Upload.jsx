@@ -34,6 +34,7 @@ function Upload({ address, yourLocalBalance, readContracts, auth, writeContracts
     setTextFileUrl(textUrl);
     console.log("Text file url:", textUrl);
     console.log("AddedText:", JSON.stringify(addedText));
+    console.log("Text CID encoded:", textCIDEncoded);
 
     const addedAudio = await client.add(audioBlob);
     const audioUrl = `https://ipfs.infura.io/ipfs/${addedAudio.path}`;
@@ -42,6 +43,7 @@ function Upload({ address, yourLocalBalance, readContracts, auth, writeContracts
     setAudioFileUrl(audioUrl);
     console.log("Audio file url:", audioUrl);
     console.log("AddedAudio", JSON.stringify(addedAudio));
+    console.log("Audio CID encoded:", audioCIDEncoded);
 
     // Write to createStory api on smart contract
     try {
@@ -115,7 +117,7 @@ function Upload({ address, yourLocalBalance, readContracts, auth, writeContracts
   };
 
   const handleChange = event => {
-    setText(event.target.value);
+    setText(event.target.value.trim());
   };
 
   return (
