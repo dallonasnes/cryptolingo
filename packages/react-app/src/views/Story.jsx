@@ -84,7 +84,7 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
       );
       // Purchase story
       tx(writeContracts.CryptoLingo.purchaseStory(address, storyMetadata.id));
-      setTokenBalance(Number(tokenBalance) - Number(storyCost));
+      // setTokenBalance(Number(tokenBalance) - Number(storyCost));
       setIsPurchased(true);
     } catch (e) {
       console.log("ERR:", e);
