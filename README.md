@@ -9,3 +9,5 @@
 3. Once the first terminal is dumping ETH network logs, run `yarn deploy && yarn start` in the second terminal
 #### Docker
 1. See readme in `docker` dir
+
+Thanks to [scaffold-eth](https://github.com/scaffold-eth/scaffold-eth)
