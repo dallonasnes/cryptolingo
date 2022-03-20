@@ -17,6 +17,15 @@ export const NETWORKS = {
     blockExplorer: "",
     rpcUrl: "http://" + (global.window ? window.location.hostname : "localhost") + ":8545",
   },
+  alfajores: {
+    name: "alfajores",
+    color: "#2bbdf7",
+    chainId: 44787,
+    price: 1,
+    gasPrice: 1000000000,
+    rpcUrl: "https://alfajores-forno.celo-testnet.org",
+    // blockExplorer: "https://explorer-mainnet.maticvigil.com//",
+  },
   mainnet: {
     name: "mainnet",
     color: "#ff8b9e",

@@ -11,7 +11,7 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
   const location = useLocation();
   const { storyMetadata, storyCost } = location.state;
   const isAuthor = address === storyMetadata.author;
-  const wasAlreadyPurchased = location.state.isOwned || isAuthor;
+  const wasAlreadyPurchased = location.state.isPurchased || isAuthor;
   if (!wasAlreadyPurchased && Number(tokenBalance) < Number(storyCost)) {
     alert(
       `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
@@ -78,14 +78,14 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
       // Approve max transaction amount so contract can move tokens to/from user wallet
       tx(
         writeContracts.LingoRewards.approve(
-          address,
+          writeContracts.CryptoLingo.address,
           ethers.BigNumber.from("115792089237316195423570985008687907853269984665640564039457584007913129639935"),
         ),
       );
       // Purchase story
       tx(writeContracts.CryptoLingo.purchaseStory(address, storyMetadata.id));
-      setTokenBalance(Number(tokenBalance) - Number(storyCost));
-      setIsPurchased(true);
+      // setTokenBalance(Number(tokenBalance) - Number(storyCost));
+      // setTimeout(() => setIsPurchased(true), 20000);
     } catch (e) {
       console.log("ERR:", e);
     }
@@ -98,6 +98,7 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
   };
 
   const handleVote = ({ isUpvote }) => {
+    if (didVote) alert("You can't vote again or on your own story");
     try {
       tx(writeContracts.CryptoLingo.vote(storyMetadata.id, isUpvote));
       setTimeout(() => alert("Refresh your page to show your token reward for voting"), 1000);
@@ -131,31 +132,12 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
         <div style={{ margin: "10px" }}>{text}</div>
       </div>
       <div style={{ margin: "20px" }}>
-        {didVote ? (
-          <>
-            <button
-              style={{ backgroundColor: "red" }}
-              onClick={() => alert("You can't vote again or on your own story")}
-            >
-              <img alt="x" src={"../../x-mark.svg"} />
-            </button>
-            <button
-              style={{ backgroundColor: "red" }}
-              onClick={() => alert("You can't vote again or on your own story")}
-            >
-              <img alt="heart" src={"../../heart.svg"} />
-            </button>
-          </>
-        ) : (
-          <>
-            <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: false })}>
-              <img alt="x" src={"../../x-mark.svg"} />
-            </button>
-            <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: true })}>
-              <img alt="heart" src={"../../heart.svg"} />
-            </button>
-          </>
-        )}
+        <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: false })}>
+          <img alt="x" src={"../../x-mark.svg"} />
+        </button>
+        <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: true })}>
+          <img alt="heart" src={"../../heart.svg"} />
+        </button>
       </div>
     </>
   ) : (

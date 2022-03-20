@@ -73,31 +73,6 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
           console.log("ERR:", e);
         }
       }
-      // // TODO: DELETE ME after DEBUGGING
-      // const tmp = {
-      //   bafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5ybafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7qohj5mq3sjj4g7v5y:
-      //     {
-      //       id: "bafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5ybafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7qohj5mq3sjj4g7v5y",
-      //       upvoteCount: 5,
-      //       downvoteCount: 2,
-      //       author: address,
-      //     },
-      //   bafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5ybafybeiaoporrmlqo6vpn4z52hfvpaavknxyrq8777rohj5mq3sjj4g7v5y:
-      //     {
-      //       id: "bafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5ybafybeiaoporrmlqo6vpn4z52hfvpaavknxyrq8777rohj5mq3sjj4g7v5y",
-      //       upvoteCount: 9,
-      //       downvoteCount: 12,
-      //       author: address,
-      //     },
-      //   bafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5ybafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5y:
-      //     {
-      //       id: "bafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5ybafybeiaoporrmlqo6vpn4z52hfvpaavknxyrqi7g7rohj5mq3sjj4g7v5y",
-      //       upvoteCount: 88,
-      //       downvoteCount: 2,
-      //       author: address,
-      //     },
-      // };
-      // setStoryPreviewMetadatas(tmp);
     }
     fetchStories();
   }, [readContracts]);
@@ -130,7 +105,6 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
           );
           setStoryPreviews(textPreviewObjects);
         } catch (e) {
-          debugger;
           console.log("ERR:", e);
         }
       }
@@ -144,12 +118,10 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
         try {
           const res = await readContracts.CryptoLingo.getStoriesPurchased(address);
           if (res && res.length > 0) {
-            debugger;
-            const purchasedStoryIds = new Set(res.map(storyObj => storyObj.id));
+            const purchasedStoryIds = new Set(res);
             setPurchasedStoryIds(purchasedStoryIds);
           }
         } catch (e) {
-          debugger;
           console.log("ERR:", e);
         }
       }

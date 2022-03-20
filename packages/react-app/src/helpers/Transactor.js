@@ -128,7 +128,7 @@ export default function Transactor(providerOrSigner, gasPrice, etherscan) {
           message = e.message;
         }
 
-        console.log("Attempt to clean up:", message);
+        // console.log("Attempt to clean up:", message);
         try {
           let obj = JSON.parse(message);
           if (obj && obj.body) {
@@ -141,10 +141,10 @@ export default function Transactor(providerOrSigner, gasPrice, etherscan) {
           //ignore
         }
 
-        notification.error({
-          message: "Transaction Error",
-          description: message,
-        });
+        // notification.error({
+        //   message: "Transaction Error",
+        //   description: message,
+        // });
         if (callback && typeof callback === "function") {
           callback(e);
         }

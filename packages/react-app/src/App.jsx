@@ -53,10 +53,10 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const initialNetwork = NETWORKS.alfajores; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = true;
+const DEBUG = false;
 const NETWORKCHECK = true;
 const USE_BURNER_WALLET = true; // toggle burner wallet feature
 const USE_NETWORK_SELECTOR = false;
@@ -78,7 +78,7 @@ function App(props) {
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
   const [signedMessage, setSignedMessage] = useState();
-  const [isSessionAuthenticated, setIsSessionAuthenticated] = useState(false);
+  const [isSessionAuthenticated, setIsSessionAuthenticated] = useState(true);
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
   const [tokenBalance, setTokenBalance] = useState(0);
   const [decimals, setDecimals] = useState(18); // default to 18
@@ -148,13 +148,13 @@ function App(props) {
       if (userSigner) {
         const newAddress = await userSigner.getAddress();
         setAddress(newAddress);
-        if (DEBUG) console.log(`New address: ${newAddress}`);
-        const signature = await userSigner.signMessage(messageToSign);
-        setSignedMessage(signature);
-        if (DEBUG) console.log(`Signature: ${signature}`);
-        const isSessionAuthenticated = await authorizeWalletWithWebServer({ address: newAddress, signature });
-        if (DEBUG) console.log(`Is Session Authenticated: ${isSessionAuthenticated}`);
-        setIsSessionAuthenticated(isSessionAuthenticated);
+        // if (DEBUG) console.log(`New address: ${newAddress}`);
+        // const signature = await userSigner.signMessage(messageToSign);
+        // setSignedMessage(signature);
+        // if (DEBUG) console.log(`Signature: ${signature}`);
+        // const isSessionAuthenticated = await authorizeWalletWithWebServer({ address: newAddress, signature });
+        // if (DEBUG) console.log(`Is Session Authenticated: ${isSessionAuthenticated}`);
+        // setIsSessionAuthenticated(isSessionAuthenticated);
 
         // If Debugging, send some eth to pay for gas
         if (DEBUG && USE_BURNER_WALLET)
