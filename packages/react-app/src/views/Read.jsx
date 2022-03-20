@@ -151,8 +151,8 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
               <button>
                 <div style={{ margin: "10px" }} id={obj.id}>
                   <div>{`Story preview\n${obj.textPreview}`}</div>
-                  <div>Upvotes: {obj.upvoteCount || 0}</div>
-                  <div>Downvotes: {obj.downvoteCount || 0}</div>
+                  <div>Upvotes: {Number(obj.upvotes?._hex) || 0}</div>
+                  <div>Downvotes: {Number(obj.downvotes?._hex) || 0}</div>
                   {isOwned ? <div>YOU ALREADY OWN</div> : null}
                 </div>
               </button>
