@@ -105,8 +105,8 @@ export default function Ramp(props) {
             shape="round"
             onClick={() => {
               new RampInstantSDK({
-                hostAppName: "scaffold-eth",
-                hostLogoUrl: "https://scaffoldeth.io/scaffold-eth.png",
+                hostAppName: "cryptolingo",
+                hostLogoUrl: "https://scaffoldeth.io/cryptolingo.png",
                 swapAmount: "100000000000000000", // 0.1 ETH in wei  ?
                 swapAsset: "ETH",
                 userAddress: props.address,

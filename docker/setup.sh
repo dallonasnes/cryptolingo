@@ -7,8 +7,8 @@ if [ "$1" = "start" ]; then
   # to run the frontend on a different port add the "-e PORT=8080" parameter and change "-p 8080:8080" one.
   [ -z "$DOCKER_IMAGE" ] && docker run \
     --name SCAFFOLD_ETH \
-    -v `pwd`:/opt/scaffold-eth \
-    -w /opt/scaffold-eth \
+    -v `pwd`:/opt/cryptolingo \
+    -w /opt/cryptolingo \
     -p 3000:3000 \
     -p 8545:8545 \
     -dt node:16 || docker restart SCAFFOLD_ETH

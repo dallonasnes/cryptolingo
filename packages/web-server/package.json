@@ -1,5 +1,5 @@
 {
-  "name": "@scaffold-eth/web-server",
+  "name": "@cryptolingo/web-server",
   "version": "1.0.0",
   "description": "Web server layer",
   "main": "app.js",

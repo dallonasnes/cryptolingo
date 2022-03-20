@@ -8,16 +8,16 @@ Prerequisites:
 ***Note**: If you are using a Windows environment, you can use [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/) or a Bash emulator like "Git BASH" (which its included in [Git for Windows](https://gitforwindows.org/)). If you use WSL take into account that you should [configure Docker to use the WSL 2 backend](https://docs.docker.com/desktop/windows/wsl/).*
 
 
-> clone/fork 🏗 scaffold-eth:
+> clone/fork 🏗 cryptolingo:
 
 ```bash
-git clone https://github.com/scaffold-eth/scaffold-eth.git
+git clone https://github.com/cryptolingo/cryptolingo.git
 ```
 
 > [basic] run the script that sets the stack up and that's it (takes some minutes to finish):
 
 ```bash
-cd scaffold-eth
+cd cryptolingo
 ./docker/setup.sh start
 ```
 
@@ -35,8 +35,8 @@ DOCKER_IMAGE=$(docker ps --filter name=SCAFFOLD_ETH -q)
 
 docker run \
   --name SCAFFOLD_ETH \
-  -v `pwd`:/opt/scaffold-eth \
-  -w /opt/scaffold-eth \
+  -v `pwd`:/opt/cryptolingo \
+  -w /opt/cryptolingo \
   -e PORT=8080 \
   -p 8080:8080 \
   -p 8545:8545 \
@@ -53,8 +53,8 @@ DOCKER_IMAGE=$(docker ps --filter name=SCAFFOLD_ETH -q)
 
 docker run \
   --name SCAFFOLD_ETH \
-  -v `pwd`:/opt/scaffold-eth \
-  -w /opt/scaffold-eth \
+  -v `pwd`:/opt/cryptolingo \
+  -w /opt/cryptolingo \
   -p 3000:3000 \
   -p 8545:8545 \
   --entrypoint /bin/bash \

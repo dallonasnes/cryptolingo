@@ -34,10 +34,10 @@ import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
 /*
-    Welcome to 🏗 scaffold-eth !
+    Welcome to 🏗 cryptolingo !
 
     Code:
-    https://github.com/scaffold-eth/scaffold-eth
+    https://github.com/cryptolingo/cryptolingo
 
     Support:
     https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
@@ -176,7 +176,7 @@ function App(props) {
   // The transactor wraps transactions and provides notificiations
   const tx = DEBUG && USE_BURNER_WALLET ? Transactor(localProvider) : Transactor(userSigner, gasPrice);
 
-  // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
+  // 🏗 cryptolingo is full of handy hooks like this one to get your balance:
   const yourLocalBalance = useBalance(localProvider, address);
 
   // Just plug in different 🛰 providers to get your balance on different chains:
@@ -230,7 +230,7 @@ function App(props) {
       writeContracts &&
       mainnetContracts
     ) {
-      console.log("_____________________________________ 🏗 scaffold-eth _____________________________________");
+      console.log("_____________________________________ 🏗 cryptolingo _____________________________________");
       console.log("🌎 mainnetProvider", mainnetProvider);
       console.log("🏠 localChainId", localChainId);
       console.log("👩‍💼 selected address:", address);
