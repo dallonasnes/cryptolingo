@@ -9,9 +9,9 @@ import "contracts/LingoRewards.sol";
 contract CryptoLingo is Ownable, ReentrancyGuard {
 
     // constants
-    uint256 public authorReward = 1;
-    uint256 public voterReward = 1;
-    uint256 public storyCost = 1;
+    uint256 public authorReward = 6;
+    uint256 public voterReward = 3;
+    uint256 public storyCost = 10;
 
     // rewards token
     LingoRewards rewardsToken;
@@ -127,6 +127,7 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
         );
 
         // add story to target's storiesPurchased
+        storiesPurchased[target].push(storyId);
         storyActions.hasPurchased = true;
     }
 
