@@ -83,7 +83,7 @@ function Subgraph(props) {
         <a href="https://thegraph.com/docs/about/introduction" target="_blank" rel="noopener noreferrer">
           The Graph
         </a>{" "}
-        with 🏗 scaffold-eth (
+        with 🏗 cryptolingo (
         <a href="https://youtu.be/T5ylzOTkn-Q" target="_blank" rel="noopener noreferrer">
           learn more
         </a>
