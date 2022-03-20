@@ -136,28 +136,54 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
      * @param string storyId - id of the Story entry.
      * @param bool voteChoice - false for downvote, true for upvote.
      */
-    function vote(string memory storyId, bool voteChoice) public {
-        // TODO revert if user hasn't purchased the given story
-        // TODO dont allow a user to upvote/downvote a story more than once
+    function vote(string memory storyId, bool voteChoice) public nonReentrant {
         // get story
         Story storage story;
         story = stories[
             getIndexOfStory(storyId)
         ];
+        require(
+            userStoryActions[msg.sender][storyId].hasPurchased,
+            "Cannot vote on a story you haven't purchased."
+        );
+        require(
+            msg.sender != story.author,
+            "Author cannot vote on their own story."
+        );
 
         // vote for story
         StoryActions storage storyActions = userStoryActions[msg.sender][storyId];
-        if (voteChoice == true) {
-            story.upvotes++;
-            storyActions.hasUpvoted = true;
-        }
-        else {
-            story.downvotes++;
-            storyActions.hasDownvoted = true;
+
+        // first vote
+        if (storyActions.hasUpvoted == false && storyActions.hasDownvoted == false) {
+            if (voteChoice == true) {
+                story.upvotes++;
+                storyActions.hasUpvoted = true;
+            }
+            else {
+                story.downvotes++;
+                storyActions.hasDownvoted = true;
+            }
+
+            // reward user for voting
+            rewardsToken.mint(msg.sender, voterReward * (10**rewardsToken.decimals()));
         }
 
-        // reward user for voting
-        rewardsToken.mint(msg.sender, voterReward * (10**rewardsToken.decimals()));
+        // updating vote
+        else {
+            if (voteChoice == true) {
+                story.downvotes--;
+                story.upvotes++;
+                storyActions.hasDownvoted = false;
+                storyActions.hasUpvoted = true;
+            }
+            else {
+                story.upvotes--;
+                story.downvotes++;
+                storyActions.hasUpvoted = false;
+                storyActions.hasDownvoted = true;
+            }
+        }
     }
 
     /*
