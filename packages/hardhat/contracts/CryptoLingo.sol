@@ -29,10 +29,10 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
 
     // user story actions
     struct StoryActions {
-        bool upvoted;
-        bool downvoted;
-        bool purchased;
-        bool created;
+        bool hasUpvoted;
+        bool hasDownvoted;
+        bool hasPurchased;
+        bool hasAuthored;
     }
 
     // stories 
@@ -91,9 +91,14 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
 
         // add authored piece to purchasedStories of the author
         // so they dont have to pay to read their own stories
-        storiesPurchased[msg.sender].push(
-           string(abi.encodePacked(textCid, audioCid))
-        ); 
+        userStoryActions[msg.sender]
+            [string(abi.encodePacked(textCid, audioCid))] = 
+                StoryActions(
+                    false,
+                    false,
+                    true,
+                    true
+            );
 
         // send user rewards
         rewardsToken.mint(msg.sender, authorReward * (10**rewardsToken.decimals()));
@@ -108,13 +113,11 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
     function purchaseStory(address target, string memory storyId) external {
         // TODO can this be improved by using a different data structure?
         // revert if user already purchased this story
-        string[] memory purchased = storiesPurchased[target]; 
-        for (uint256 i=0; i<purchased.length; i++) {
-            if (keccak256(abi.encode(purchased[i])) 
-                == keccak256(abi.encode(storyId))) {
-                revert("Cannot purchase same story twice. Thanks though.");
-            }
-        }
+        StoryActions storage storyActions = userStoryActions[target][storyId]; 
+        require(
+            !storyActions.hasPurchased,
+            "Cannot purchase same story twice. Thanks though."
+        );
 
         // transfer tokens from message sender to this contract
         rewardsToken.transferFrom(
@@ -124,7 +127,7 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
         );
 
         // add story to target's storiesPurchased
-        storiesPurchased[target].push(storyId);
+        storyActions.hasPurchased = true;
     }
 
     /*
@@ -142,8 +145,15 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
         ];
 
         // vote for story
-        if (voteChoice == true) story.upvotes += 1;
-        else story.downvotes +=1;
+        StoryActions storage storyActions = userStoryActions[msg.sender][storyId];
+        if (voteChoice == true) {
+            story.upvotes++;
+            storyActions.hasUpvoted = true;
+        }
+        else {
+            story.downvotes++;
+            storyActions.hasDownvoted = true;
+        }
 
         // reward user for voting
         rewardsToken.mint(msg.sender, voterReward * (10**rewardsToken.decimals()));

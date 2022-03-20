@@ -158,8 +158,8 @@ describe("CryptoLingo contract", function () {
 
     it("should allow a user to purchase a story", async function () {
       // assert that user2 can access the story
-      var result = await contractAsUser2.getStoriesPurchased(accounts.user2);
-      expect(result).to.be.an('array').that.includes(textCid+audioCid);
+      var result = await contractAsUser2.userStoryActions(accounts.user2, textCid+audioCid);
+      expect(result.hasPurchased).to.equal(true);
     });
 
     it("shouldn't allow a user with insufficient balance to purchase a story", async function () {
@@ -227,14 +227,14 @@ describe("CryptoLingo contract", function () {
       );
 
       // assert that user3 can access the story
-      var result = await contractAsUser2.getStoriesPurchased(accounts.user3);
-      expect(result).to.be.an('array').that.includes(textCid+audioCid);
+      var result = await contractAsUser2.userStoryActions(accounts.user3, textCid+audioCid);
+      expect(result.hasPurchased).to.equal(true);
     });
 
     it("shouldn't require an author to purchase their own story", async function () {
       // assert that user1 can read the story they authored
-      var result = await contractAsUser1.getStoriesPurchased(accounts.user1);
-      expect(result).to.be.an('array').that.includes(textCid+audioCid);
+      var result = await contractAsUser1.userStoryActions(accounts.user1, textCid+audioCid);
+      expect(result.hasPurchased).to.equal(true);
     });
   });
 
