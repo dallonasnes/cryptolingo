@@ -98,6 +98,7 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
   };
 
   const handleVote = ({ isUpvote }) => {
+    if (didVote) alert("You can't vote again or on your own story");
     try {
       tx(writeContracts.CryptoLingo.vote(storyMetadata.id, isUpvote));
       setTimeout(() => alert("Refresh your page to show your token reward for voting"), 1000);
@@ -131,31 +132,12 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
         <div style={{ margin: "10px" }}>{text}</div>
       </div>
       <div style={{ margin: "20px" }}>
-        {didVote ? (
-          <>
-            <button
-              style={{ backgroundColor: "red" }}
-              onClick={() => alert("You can't vote again or on your own story")}
-            >
-              <img alt="x" src={"../../x-mark.svg"} />
-            </button>
-            <button
-              style={{ backgroundColor: "red" }}
-              onClick={() => alert("You can't vote again or on your own story")}
-            >
-              <img alt="heart" src={"../../heart.svg"} />
-            </button>
-          </>
-        ) : (
-          <>
-            <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: false })}>
-              <img alt="x" src={"../../x-mark.svg"} />
-            </button>
-            <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: true })}>
-              <img alt="heart" src={"../../heart.svg"} />
-            </button>
-          </>
-        )}
+        <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: false })}>
+          <img alt="x" src={"../../x-mark.svg"} />
+        </button>
+        <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: true })}>
+          <img alt="heart" src={"../../heart.svg"} />
+        </button>
       </div>
     </>
   ) : (
