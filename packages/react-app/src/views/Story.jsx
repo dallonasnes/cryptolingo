@@ -11,7 +11,7 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
   const location = useLocation();
   const { storyMetadata, storyCost } = location.state;
   const isAuthor = address === storyMetadata.author;
-  const wasAlreadyPurchased = location.state.isOwned || isAuthor;
+  const wasAlreadyPurchased = location.state.isPurchased || isAuthor;
   if (!wasAlreadyPurchased && Number(tokenBalance) < Number(storyCost)) {
     alert(
       `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
