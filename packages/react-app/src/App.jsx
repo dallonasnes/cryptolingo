@@ -81,6 +81,7 @@ function App(props) {
   const [isSessionAuthenticated, setIsSessionAuthenticated] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
   const [tokenBalance, setTokenBalance] = useState(0);
+  const [decimals, setDecimals] = useState(18); // default to 18
   const location = useLocation();
 
   const targetNetwork = NETWORKS[selectedNetwork];
@@ -288,8 +289,9 @@ function App(props) {
       if (userSigner && readContracts && readContracts.LingoRewards) {
         try {
           const res = await readContracts.LingoRewards.balanceOf(address);
-          // TODO: Handle this as a big number soon
-          const balance = Number(res._hex);
+          const decimals = await readContracts.LingoRewards.decimals();
+          setDecimals(Number(decimals._hex));
+          const balance = Number(res._hex) / 10 ** decimals;
           setTokenBalance(balance);
           // TODO: fix this after DEBUGGING
           // setTokenBalance(100);

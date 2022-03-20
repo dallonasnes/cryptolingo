@@ -23,12 +23,13 @@ function Upload({ address, yourLocalBalance, readContracts, auth, writeContracts
     // TODO:
     // 1. write both to NFT storage api, await response
     // 2. setup livepeer and record audio that way
-    if (!text || !audioElem) {
+    if (!text || !text.trim() || !audioElem) {
       alert("Be sure to upload both text and audio! Refresh the page to try again");
       return;
     }
+    setText(text.trim());
     // Get text and audio, write to IPFS
-    const addedText = await client.add(text);
+    const addedText = await client.add(text.trim());
     const textUrl = `https://ipfs.infura.io/ipfs/${addedText.path}`;
     const textCIDEncoded = addedText.cid.toV1().toString();
     setTextFileUrl(textUrl);
@@ -117,7 +118,7 @@ function Upload({ address, yourLocalBalance, readContracts, auth, writeContracts
   };
 
   const handleChange = event => {
-    setText(event.target.value.trim());
+    setText(event.target.value);
   };
 
   return (

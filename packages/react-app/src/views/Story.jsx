@@ -10,36 +10,36 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
   const history = useHistory();
   const location = useLocation();
   const { storyMetadata, storyCost } = location.state;
-  const wasAlreadyPurchased = location.state.isPurchased;
+  const isAuthor = address === storyMetadata.author;
+  const wasAlreadyPurchased = location.state.isOwned || isAuthor;
   if (!wasAlreadyPurchased && Number(tokenBalance) < Number(storyCost)) {
     alert(
       `You need ${storyCost} tokens to purchase this token but you only have ${tokenBalance}\nGet some by uploading content or purchase them at an exchange`,
     );
     history.goBack();
   }
-
   const [isPurchased, setIsPurchased] = useState(wasAlreadyPurchased);
 
   const [fetchDidComplete, setFetchDidComplete] = useState(false);
   const [text, setText] = useState(null);
   const [audio, setAudio] = useState(null);
+  const [didVote, setDidVote] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       // Only fetch if did purchase, isAlreadyPurchased and hasn't yet fetched
-      // TODO: remove || TRUE after debugging
       if (isPurchased && !fetchDidComplete) {
-        const textCID = id.substring(0, id.length / 2); // text CID comes first
-        const audioCID = id.substring(id.length / 2); // audio CID comes second
+        const textCID = storyMetadata.id.substring(0, storyMetadata.id.length / 2); // text CID comes first
+        const audioCID = storyMetadata.id.substring(storyMetadata.id.length / 2); // audio CID comes second
 
-        // TODO: UNCOMMENT ABOVE AND COMMENT AFTER DEBUGGING
-        // const textCID = "bafybeih2slq7woea2scmzyt52sws23xvploktnr6ubd6bvep3udxrau3ce";
-        // const audioCID = "bafybeibnpnhblqsa6wjuk7gzbf4bbq5dz2e6kfq2n3dhha4vispv2hoizq";
         try {
-          const [textBlob, audioBlob] = await Promise.all([
+          const [textBlob, audioBlob, voteData] = await Promise.all([
             fetch(`https://ipfs.io/ipfs/${textCID}`),
             fetch(`https://ipfs.io/ipfs/${audioCID}`),
+            readContracts.CryptoLingo.userStoryActions(address, storyMetadata.id),
           ]);
+
+          setDidVote(voteData.hasDownvoted || voteData.hasUpvoted || voteData.hasAuthored);
 
           const text = await textBlob.text();
           const audio = await audioBlob.blob();
@@ -53,7 +53,7 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
       }
     }
     fetchData();
-  }, [fetchDidComplete]);
+  }, [isPurchased, fetchDidComplete]);
 
   useEffect(() => {
     if (audio && fetchDidComplete) {
@@ -83,7 +83,7 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
         ),
       );
       // Purchase story
-      tx(writeContracts.CryptoLingo.purchaseStory(wallet, storyMetadata.id));
+      tx(writeContracts.CryptoLingo.purchaseStory(address, storyMetadata.id));
       setTokenBalance(Number(tokenBalance) - Number(storyCost));
       setIsPurchased(true);
     } catch (e) {
@@ -99,24 +99,30 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
 
   const handleVote = ({ isUpvote }) => {
     try {
-      tx(writeContracts.CryptoLingo.vote(wallet, storyMetadata.id, isUpvote));
-      // TODO: track if they've already voted, so they can't game this
+      tx(writeContracts.CryptoLingo.vote(storyMetadata.id, isUpvote));
+      setTimeout(() => alert("Refresh your page to show your token reward for voting"), 1000);
+      // TODO: setup so don't need to refresh and instead validate + update state
       // setTokenBalance(tokenBalance + 3); // Get 3 tokens back for voting
     } catch (e) {
       console.log("ERR:", e);
     }
   };
 
-  return text && audio ? (
+  return !isPurchased ? (
     <>
       <div style={{ margin: "10px" }}>
         <Modal isOpen={isModalOpen} onRequestClose={toggleModal} contentLabel="My dialog">
           <div style={{ margin: "10px", display: "flex" }}>
-            <button onClick={() => handlePurchaseDecline()}>Reject</button>
+            <span>You must buy this story for {storyCost} tokens to continue. Do you wish to proceed?</span>
+            <br />
+            <button onClick={() => handlePurchaseDecline()}>Cancel</button>
             <button onClick={() => handlePurchaseApprove()}>Approve</button>
           </div>
         </Modal>
       </div>
+    </>
+  ) : text && audio ? (
+    <>
       <div>
         <h2>Read your story!</h2>
       </div>
@@ -125,12 +131,31 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
         <div style={{ margin: "10px" }}>{text}</div>
       </div>
       <div style={{ margin: "20px" }}>
-        <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: false })}>
-          <img alt="x" src={"../../x-mark.svg"} />
-        </button>
-        <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: true })}>
-          <img alt="heart" src={"../../heart.svg"} />
-        </button>
+        {didVote ? (
+          <>
+            <button
+              style={{ backgroundColor: "red" }}
+              onClick={() => alert("You can't vote again or on your own story")}
+            >
+              <img alt="x" src={"../../x-mark.svg"} />
+            </button>
+            <button
+              style={{ backgroundColor: "red" }}
+              onClick={() => alert("You can't vote again or on your own story")}
+            >
+              <img alt="heart" src={"../../heart.svg"} />
+            </button>
+          </>
+        ) : (
+          <>
+            <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: false })}>
+              <img alt="x" src={"../../x-mark.svg"} />
+            </button>
+            <button style={{ backgroundColor: "red" }} onClick={() => handleVote({ isUpvote: true })}>
+              <img alt="heart" src={"../../heart.svg"} />
+            </button>
+          </>
+        )}
       </div>
     </>
   ) : (

@@ -6,7 +6,8 @@ use(solidity);
 
 describe("CryptoLingo contract", function () {
   let CryptoLingo, LingoRewards;
-  let contractAsOwner, contractAsUser1;
+  let contractAsOwner, contractAsUser1,
+        contractAsUser2, contractAsUser3;
   let textCid, audioCid;
 
   // run once before all tests
@@ -28,17 +29,22 @@ describe("CryptoLingo contract", function () {
       "CryptoLingo", 
       CryptoLingo.address,
       accounts.deployer
-    )
+    );
     contractAsUser1 = await ethers.getContractAt(
       "CryptoLingo", 
       CryptoLingo.address,
       accounts.user1
-    )
+    );
     contractAsUser2 = await ethers.getContractAt(
       "CryptoLingo", 
       CryptoLingo.address,
       accounts.user2
-    )
+    );
+    contractAsUser3 = await ethers.getContractAt(
+      "CryptoLingo", 
+      CryptoLingo.address,
+      accounts.user3
+    );
     rewardsContractAsOwner = await ethers.getContractAt(
       "LingoRewards",
       LingoRewards.address,
@@ -274,11 +280,6 @@ describe("CryptoLingo contract", function () {
       );
     });
 
-    // TODO
-      // it.only("should not allow a user to both upvote and downvote a story", async function () {
-      // it.only("should not allow a user to both upvote and downvote a story", async function () {
-      // it.only("should allow a user to change their vote while not giving them more rewards.", async function () {
-
     it("should allow a user to upvote a story", async function () {
       // assert that user2 can upvote the story
       await contractAsUser2.vote(textCid + audioCid, true);
@@ -333,6 +334,54 @@ describe("CryptoLingo contract", function () {
           )
         )
       );
+    });
+
+    it("should not allow an author to vote on their own story", async function () {
+      // upvote the story as the author
+      await expect(contractAsUser1.vote(textCid + audioCid, false))
+        .to.be.revertedWith("Author cannot vote on their own story.");
+    });
+
+    it("should not allow a user to both upvote and downvote a story", async function () {
+      // upvote the story as user2
+      await contractAsUser2.vote(textCid + audioCid, true);
+
+      // assert that user2 has upvoted the story
+      // and assert that the story has 1 upvote
+      expect((await contractAsUser2.getStories())[0].upvotes)
+        .to.equal(1);
+      expect((await contractAsUser2.getStories())[0].downvotes)
+        .to.equal(0);
+      expect((await contractAsUser2.userStoryActions(accounts.user2, textCid+audioCid)).hasUpvoted)
+        .to.equal(true);
+      expect((await contractAsUser2.userStoryActions(accounts.user2, textCid+audioCid)).hasDownvoted)
+        .to.equal(false);
+
+      // get user2 balance
+      var bal = await rewardsContractAsUser2.balanceOf(accounts.user2);
+
+      // downvote the story as user2
+      await contractAsUser2.vote(textCid + audioCid, false);
+
+      // assert that the story only has an upvote OR downvote from user2
+      expect((await contractAsUser2.getStories())[0].upvotes)
+        .to.equal(0);
+      expect((await contractAsUser2.getStories())[0].downvotes)
+        .to.equal(1);
+      expect((await contractAsUser2.userStoryActions(accounts.user2, textCid+audioCid)).hasUpvoted)
+        .to.equal(false);
+      expect((await contractAsUser2.userStoryActions(accounts.user2, textCid+audioCid)).hasDownvoted)
+        .to.equal(true);
+
+      // assert that user2 didnt receive any extra rewards for trying to revote
+      var newBal = await rewardsContractAsUser2.balanceOf(accounts.user2);
+      expect(bal).to.equal(newBal);
+    });
+
+    it("should not allow a user to vote if they haven't purchased a story", async function () {
+      // upvote the story as user3 and assert revert
+      await expect(contractAsUser3.vote(textCid + audioCid, false))
+        .to.be.revertedWith("Cannot vote on a story you haven't purchased.");
     });
   });
 
