@@ -53,7 +53,7 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
       }
     }
     fetchData();
-  }, [fetchDidComplete]);
+  }, [isPurchased, fetchDidComplete]);
 
   useEffect(() => {
     if (audio && fetchDidComplete) {
