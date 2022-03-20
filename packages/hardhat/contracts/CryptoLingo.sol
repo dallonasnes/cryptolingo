@@ -10,7 +10,7 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
 
     // constants
     uint256 public authorReward = 1;
-    uint256 public voteReward = 1;
+    uint256 public voterReward = 1;
     uint256 public storyCost = 1;
 
     // rewards token
@@ -27,6 +27,14 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
         uint256 created;
     } 
 
+    // user story actions
+    struct StoryActions {
+        bool upvoted;
+        bool downvoted;
+        bool purchased;
+        bool created;
+    }
+
     // stories 
     // note - this can currently be bypassed and is just for demo purposes.
     Story[] private stories;
@@ -34,9 +42,8 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
     // users' purchased stories
     mapping(address => string[]) public storiesPurchased;
 
-    // users' votes
-    mapping(address => uint256) public upvotes;
-    mapping(address => uint256) public downvotes;
+    // users' actions
+    mapping(address => mapping(string => StoryActions)) public userStoryActions;
 
 
     constructor(address _rewardsToken) {
@@ -54,6 +61,7 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
 
     /*
      * @dev Returns an array of all the story ids purchased by the target.
+     * @param address target - the user to query.
      * @notice - this can run out of memory but we dont care for demo.
      */
     function getStoriesPurchased(address target) public view returns (string[] memory) {
@@ -124,6 +132,38 @@ contract CryptoLingo is Ownable, ReentrancyGuard {
      * @param string storyId - id of the Story entry.
      * @param bool voteChoice - false for downvote, true for upvote.
      */
-    function vote(address voter, string memory storyId, bool voteChoice) public {
+    function vote(string memory storyId, bool voteChoice) public {
+        // TODO revert if user hasn't purchased the given story
+        // TODO dont allow a user to upvote/downvote a story more than once
+        // get story
+        Story storage story;
+        story = stories[
+            getIndexOfStory(storyId)
+        ];
+
+        // vote for story
+        if (voteChoice == true) story.upvotes += 1;
+        else story.downvotes +=1;
+
+        // reward user for voting
+        rewardsToken.mint(msg.sender, voterReward * (10**rewardsToken.decimals()));
+    }
+
+    /*
+     * @dev Return the index of the story with the given id.
+     * @dev Revert if the story with the given id cannot be found.
+     * @param string storyId - id of the Story entry.
+     */
+    function getIndexOfStory(string memory storyId) public view returns (uint) {
+        Story memory story;
+        for (uint i=0; i<stories.length; i++) {
+            story = stories[i];
+            if (keccak256(abi.encode(story.id)) == 
+                keccak256(abi.encode(storyId))
+               ) {
+                return i;
+            }
+        }
+        revert("Story with given storyId could not be found.");
     }
 }

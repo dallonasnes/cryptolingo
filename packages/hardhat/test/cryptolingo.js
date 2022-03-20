@@ -66,6 +66,9 @@ describe("CryptoLingo contract", function () {
   });
 
   describe("Creating Stories", function () {
+    // TODO test that:
+      // an author can't create the same story twice
+
     it("should allow a user to create a story", async function () {
       // create a story as user1
       await contractAsUser1.createStory(
@@ -118,7 +121,13 @@ describe("CryptoLingo contract", function () {
   });
 
   describe("Reading Stories", function () {
-    it("should allow a user to purchase a story", async function () {
+    // set up before each test
+    beforeEach(async function() {
+      // skip test setup for certain tests
+      if (this.currentTest.title === 
+          "shouldn't allow a user with insufficient balance to purchase a story"
+      ) return
+
       // create a story as user1
       await contractAsUser1.createStory(
         textCid,
@@ -145,7 +154,9 @@ describe("CryptoLingo contract", function () {
         accounts.user2,
         textCid + audioCid
       );
+    });
 
+    it("should allow a user to purchase a story", async function () {
       // assert that user2 can access the story
       var result = await contractAsUser2.getStoriesPurchased(accounts.user2);
       expect(result).to.be.an('array').that.includes(textCid+audioCid);
@@ -158,29 +169,23 @@ describe("CryptoLingo contract", function () {
         audioCid
       );
 
-      // purchase the story as user2
+      // assert revert when user2 tries to purchase story
       await expect(
         contractAsUser2.purchaseStory(
           accounts.user2,
           textCid + audioCid
         )
-      ).to.be.reverted;
+      ).to.be.revertedWith("ERC20: transfer amount exceeds balance");
     });
 
     it("shouldn't allow the user to purchase same story twice", async function () {
-      // create a story as user1
-      await contractAsUser1.createStory(
-        textCid,
-        audioCid
-      );
-
-      // give user2 some funds to purchase with
+      // give user2 some more funds to purchase with
       var storyCost = (await contractAsUser2.storyCost()).mul(
         ethers.BigNumber.from(10).pow(await rewardsContractAsOwner.decimals())
       );
       await rewardsContractAsOwner.mint(
         accounts.user2,
-        storyCost.mul(2)
+        storyCost
       );
 
       // allow the cryptolingo contract to spend user2's reward tokens
@@ -189,13 +194,8 @@ describe("CryptoLingo contract", function () {
         storyCost.mul(2)
       );
 
-      // purchase the story as user2
-      await contractAsUser2.purchaseStory(
-        accounts.user2,
-        textCid + audioCid
-      );
-
       // purchase the story again as user2 and assert revert
+      // first purchase was in the beforeEach test setup
       await expect(
         contractAsUser2.purchaseStory(
           accounts.user2,
@@ -205,13 +205,7 @@ describe("CryptoLingo contract", function () {
     });
 
     it("should allow a user to purchase a story for another user", async function () {
-      // create a story as user1
-      await contractAsUser1.createStory(
-        textCid,
-        audioCid
-      );
-
-      // give user2 some funds to purchase with
+      // give user2 some more funds to purchase with
       var storyCost = (await contractAsUser2.storyCost()).mul(
         ethers.BigNumber.from(10).pow(await rewardsContractAsOwner.decimals())
       );
@@ -238,16 +232,108 @@ describe("CryptoLingo contract", function () {
     });
 
     it("shouldn't require an author to purchase their own story", async function () {
+      // assert that user1 can read the story they authored
+      var result = await contractAsUser1.getStoriesPurchased(accounts.user1);
+      expect(result).to.be.an('array').that.includes(textCid+audioCid);
+    });
+  });
+
+  describe("Voting on Stories", function () {
+    // set up before each test
+    beforeEach(async function() {
+      // skip test setup for certain tests
+      if (this.currentTest.title === 
+          "shouldn't allow a user with insufficient balance to purchase a story"
+      ) return
+
       // create a story as user1
       await contractAsUser1.createStory(
         textCid,
         audioCid
       );
 
-      // assert that user1 can read the story they authored
-      var result = await contractAsUser1.getStoriesPurchased(accounts.user1);
-      expect(result).to.be.an('array').that.includes(textCid+audioCid);
+      // give user2 some funds to purchase with
+      var storyCost = (await contractAsUser2.storyCost()).mul(
+        ethers.BigNumber.from(10).pow(await rewardsContractAsOwner.decimals())
+      );
+      await rewardsContractAsOwner.mint(
+        accounts.user2,
+        storyCost
+      );
+
+      // allow the cryptolingo contract to spend user2's reward tokens
+      await rewardsContractAsUser2.approve(
+        CryptoLingo.address,
+        storyCost
+      );
+
+      // purchase the story as user2
+      await contractAsUser2.purchaseStory(
+        accounts.user2,
+        textCid + audioCid
+      );
     });
 
+    // TODO
+      // it.only("should not allow a user to both upvote and downvote a story", async function () {
+      // it.only("should not allow a user to both upvote and downvote a story", async function () {
+      // it.only("should allow a user to change their vote while not giving them more rewards.", async function () {
+
+    it("should allow a user to upvote a story", async function () {
+      // assert that user2 can upvote the story
+      await contractAsUser2.vote(textCid + audioCid, true);
+      var stories = await contractAsUser2.getStories();
+      var story = stories[0];
+      expect(story.upvotes).to.equal(ethers.BigNumber.from(1));
+      expect(story.downvotes).to.equal(ethers.BigNumber.from(0));
+    });
+
+    it("should allow a user to downvote a story", async function () {
+      // assert that user2 can downvote the story
+      await contractAsUser2.vote(textCid + audioCid, false);
+      var stories = await contractAsUser2.getStories();
+      var story = stories[0];
+      expect(story.upvotes).to.equal(ethers.BigNumber.from(0));
+      expect(story.downvotes).to.equal(ethers.BigNumber.from(1));
+    });
+
+    it("should reward a user after they upvote a story", async function () {
+      // assert that the user has 0 reward tokens
+      var bal = await rewardsContractAsUser2.balanceOf(accounts.user2);
+      expect(bal).to.equal(ethers.BigNumber.from(0));
+
+      // upvote the story as user2
+      await contractAsUser2.vote(textCid + audioCid, true);
+
+      // assert that user2 has X reward tokens after voting
+      bal = await rewardsContractAsUser2.balanceOf(accounts.user2);
+      expect(bal).to.equal(
+        ethers.BigNumber.from(await contractAsUser2.voterReward()).mul(
+          ethers.BigNumber.from(10).pow(
+            await rewardsContractAsUser2.decimals()
+          )
+        )
+      );
+    });
+
+    it("should reward a user after they downvote a story", async function () {
+      // assert that the user has 0 reward tokens
+      var bal = await rewardsContractAsUser2.balanceOf(accounts.user2);
+      expect(bal).to.equal(ethers.BigNumber.from(0));
+
+      // upvote the story as user2
+      await contractAsUser2.vote(textCid + audioCid, false);
+
+      // assert that the user has X reward tokens after voting
+      bal = await rewardsContractAsUser2.balanceOf(accounts.user2);
+      expect(bal).to.equal(
+        ethers.BigNumber.from(await contractAsUser2.voterReward()).mul(
+          ethers.BigNumber.from(10).pow(
+            await rewardsContractAsUser2.decimals()
+          )
+        )
+      );
+    });
   });
+
 });
