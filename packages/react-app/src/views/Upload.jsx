@@ -27,7 +27,7 @@ function Upload({ address, yourLocalBalance, readContracts, auth, writeContracts
       alert("Be sure to upload both text and audio! Refresh the page to try again");
       return;
     }
-    setText(text.trim())
+    setText(text.trim());
     // Get text and audio, write to IPFS
     const addedText = await client.add(text.trim());
     const textUrl = `https://ipfs.infura.io/ipfs/${addedText.path}`;
