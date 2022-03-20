@@ -164,13 +164,13 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
       </div>
       {storyPreviews && storyPreviews.length > 0 ? (
         storyPreviews.map(obj => {
-          const isPurchased = purchasedStoryIds.has(obj.id);
+          const isOwned = purchasedStoryIds.has(obj.id) || obj.author === address;
           return (
             <Link
               to={{
                 pathname: "/story",
                 state: {
-                  isPurchased,
+                  isPurchased: isOwned,
                   storyMetadata: obj,
                   storyCost,
                 },
@@ -181,7 +181,7 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
                   <div>{`Story preview\n${obj.textPreview}`}</div>
                   <div>Upvotes: {obj.upvoteCount || 0}</div>
                   <div>Downvotes: {obj.downvoteCount || 0}</div>
-                  {isPurchased ? <div>PURCHASED ALREADY</div> : null}
+                  {isOwned ? <div>YOU ALREADY OWN</div> : null}
                 </div>
               </button>
             </Link>
