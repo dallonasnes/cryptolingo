@@ -37,7 +37,7 @@ describe("Lingo Rewards token", function () {
       // assert owner balance
       expect(await contractAsOwner.balanceOf(accounts.deployer))
         .to.be.equal(
-          ethers.BigNumber.from("1000000")
+          ethers.BigNumber.from("0")
             .mul(
               (ethers.BigNumber.from("10")
                 .pow(

@@ -13,7 +13,6 @@ contract LingoRewards is ERC20, ERC20Burnable, Pausable, AccessControl {
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
-        _mint(msg.sender, 1000000 * 10 ** decimals());
         _grantRole(MINTER_ROLE, msg.sender);
     }
 
