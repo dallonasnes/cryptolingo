@@ -73,7 +73,7 @@ const providers = [
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, "mainnet", "rinkeby"];
+  const networkOptions = [initialNetwork.name, NETWORKS.testnetHarmony.name];
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
@@ -284,6 +284,14 @@ function App(props) {
     }
   }, [loadWeb3Modal]);
 
+  const toggleNetwork = () => {
+    if (selectedNetwork === networkOptions[0]) {
+      setSelectedNetwork(networkOptions[1]);
+    } else {
+      setSelectedNetwork(networkOptions[0]);
+    }
+  };
+
   useEffect(() => {
     async function getUserTokenBalance() {
       if (userSigner && readContracts && readContracts.LingoRewards) {
@@ -330,6 +338,10 @@ function App(props) {
           <Link to="/read">Read</Link>
         </Menu.Item>
       </Menu>
+
+      <button style={{ margin: "10px" }} onClick={() => toggleNetwork()}>
+        Toggle network
+      </button>
 
       <Switch>
         <Route exact path="/">
