@@ -78,14 +78,14 @@ function Story({ address, yourLocalBalance, readContracts, auth, writeContracts,
       // Approve max transaction amount so contract can move tokens to/from user wallet
       tx(
         writeContracts.LingoRewards.approve(
-          address,
+          writeContracts.CryptoLingo.address,
           ethers.BigNumber.from("115792089237316195423570985008687907853269984665640564039457584007913129639935"),
         ),
       );
       // Purchase story
       tx(writeContracts.CryptoLingo.purchaseStory(address, storyMetadata.id));
       // setTokenBalance(Number(tokenBalance) - Number(storyCost));
-      setIsPurchased(true);
+      // setTimeout(() => setIsPurchased(true), 20000);
     } catch (e) {
       console.log("ERR:", e);
     }

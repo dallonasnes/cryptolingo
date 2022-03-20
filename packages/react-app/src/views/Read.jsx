@@ -122,7 +122,6 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
             setPurchasedStoryIds(purchasedStoryIds);
           }
         } catch (e) {
-          debugger;
           console.log("ERR:", e);
         }
       }
