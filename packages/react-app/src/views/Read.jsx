@@ -30,7 +30,6 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
     async function fetchStoryCost() {
       if (readContracts && readContracts.CryptoLingo) {
         const res = await readContracts.CryptoLingo.storyCost();
-        // TODO: deal with big numbers / decimals here
         const cost = Number(res._hex);
         setStoryCost(cost);
       }
@@ -65,9 +64,9 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
       if (readContracts && readContracts.CryptoLingo) {
         try {
           const res = await readContracts.CryptoLingo.getStories();
-          if (res && res.stories && res.stories.length > 0) {
+          if (res && res.length > 0) {
             const dict = {};
-            res.stories.map(obj => (dict[id] = obj));
+            res.map(obj => (dict[obj.id] = obj));
             setStoryPreviewMetadatas(dict);
           }
         } catch (e) {
@@ -131,6 +130,7 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
           );
           setStoryPreviews(textPreviewObjects);
         } catch (e) {
+          debugger;
           console.log("ERR:", e);
         }
       }
@@ -142,12 +142,14 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
     async function getPurchasedStories() {
       if (readContracts && readContracts.CryptoLingo) {
         try {
-          const res = await readContracts.CryptoLingo.storiesPurchased(address);
+          const res = await readContracts.CryptoLingo.getStoriesPurchased(address);
           if (res && res.length > 0) {
+            debugger;
             const purchasedStoryIds = new Set(res.map(storyObj => storyObj.id));
             setPurchasedStoryIds(purchasedStoryIds);
           }
         } catch (e) {
+          debugger;
           console.log("ERR:", e);
         }
       }
@@ -176,9 +178,9 @@ function Read({ address, yourLocalBalance, readContracts, auth, writeContracts, 
             >
               <button>
                 <div style={{ margin: "10px" }} id={obj.id}>
-                  <div>Story preview {obj.textPreview}</div>
-                  <div>Upvotes: {obj.upvoteCount}</div>
-                  <div>Downvotes: {obj.downvoteCount}</div>
+                  <div>{`Story preview\n${obj.textPreview}`}</div>
+                  <div>Upvotes: {obj.upvoteCount || 0}</div>
+                  <div>Downvotes: {obj.downvoteCount || 0}</div>
                   {isPurchased ? <div>PURCHASED ALREADY</div> : null}
                 </div>
               </button>
