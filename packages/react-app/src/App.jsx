@@ -58,7 +58,7 @@ const initialNetwork = NETWORKS.alfajores; // <------- select your target fronte
 // 😬 Sorry for all the console logging
 const DEBUG = false;
 const NETWORKCHECK = true;
-const USE_BURNER_WALLET = true; // toggle burner wallet feature
+const USE_BURNER_WALLET = false; // toggle burner wallet feature
 const USE_NETWORK_SELECTOR = false;
 
 const web3Modal = Web3ModalSetup();
@@ -73,11 +73,22 @@ const providers = [
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, NETWORKS.testnetHarmony.name];
+  const networkOptions = [
+    initialNetwork.name,
+    NETWORKS.testnetHarmony.name,
+    NETWORKS.matic.name,
+    NETWORKS.rinkebyArbitrum.name,
+  ];
+  const networkChainOptions = [
+    initialNetwork.chainId,
+    NETWORKS.testnetHarmony.chainId,
+    NETWORKS.matic.chainId,
+    NETWORKS.rinkebyArbitrum.chainId,
+  ].map(Number);
+  const networkChainOptionsSet = new Set(networkChainOptions);
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [signedMessage, setSignedMessage] = useState();
   const [isSessionAuthenticated, setIsSessionAuthenticated] = useState(true);
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
   const [tokenBalance, setTokenBalance] = useState(0);
@@ -118,7 +129,6 @@ function App(props) {
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProviderAndSigner = useUserProviderAndSigner(injectedProvider, localProvider, USE_BURNER_WALLET);
   const userSigner = userProviderAndSigner.signer;
-  const messageToSign = "hello world";
 
   const authorizeWalletWithWebServer = async ({ address, signature }) => {
     return true;
@@ -148,6 +158,12 @@ function App(props) {
       if (userSigner) {
         const newAddress = await userSigner.getAddress();
         setAddress(newAddress);
+        const providerChainId = Number(userSigner.provider.network.chainId);
+        if (networkChainOptions.some(a => a === providerChainId)) {
+          const currChainId = networkChainOptions.find(a => a === providerChainId);
+          const currChainIdxInNetworks = networkChainOptions.indexOf(currChainId);
+          setSelectedNetwork(networkOptions[currChainIdxInNetworks]);
+        } else alert(`We don't support ${userSigner.provider.network.name} yet`);
         // if (DEBUG) console.log(`New address: ${newAddress}`);
         // const signature = await userSigner.signMessage(messageToSign);
         // setSignedMessage(signature);
@@ -284,14 +300,6 @@ function App(props) {
     }
   }, [loadWeb3Modal]);
 
-  const toggleNetwork = () => {
-    if (selectedNetwork === networkOptions[0]) {
-      setSelectedNetwork(networkOptions[1]);
-    } else {
-      setSelectedNetwork(networkOptions[0]);
-    }
-  };
-
   useEffect(() => {
     async function getUserTokenBalance() {
       if (userSigner && readContracts && readContracts.LingoRewards) {
@@ -338,10 +346,6 @@ function App(props) {
           <Link to="/read">Read</Link>
         </Menu.Item>
       </Menu>
-
-      <button style={{ margin: "10px" }} onClick={() => toggleNetwork()}>
-        Toggle network
-      </button>
 
       <Switch>
         <Route exact path="/">
