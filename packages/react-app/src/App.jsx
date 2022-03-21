@@ -73,10 +73,18 @@ const providers = [
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, NETWORKS.testnetHarmony.name, NETWORKS.matic.name];
-  const networkChainOptions = [initialNetwork.chainId, NETWORKS.testnetHarmony.chainId, NETWORKS.matic.chainId].map(
-    Number,
-  );
+  const networkOptions = [
+    initialNetwork.name,
+    NETWORKS.testnetHarmony.name,
+    NETWORKS.matic.name,
+    NETWORKS.rinkebyArbitrum.name,
+  ];
+  const networkChainOptions = [
+    initialNetwork.chainId,
+    NETWORKS.testnetHarmony.chainId,
+    NETWORKS.matic.chainId,
+    NETWORKS.rinkebyArbitrum.chainId,
+  ].map(Number);
   const networkChainOptionsSet = new Set(networkChainOptions);
 
   const [injectedProvider, setInjectedProvider] = useState();
