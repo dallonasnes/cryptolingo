@@ -115,7 +115,7 @@ export const NETWORKS = {
     rpcUrl: `http://localhost:7545`,
   },
   rinkebyArbitrum: {
-    name: "Arbitrum Testnet",
+    name: "rinkebyArbitrum",
     color: "#50a0ea",
     chainId: 421611,
     blockExplorer: "https://rinkeby-explorer.arbitrum.io/#/",
