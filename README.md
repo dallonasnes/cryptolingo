@@ -11,6 +11,19 @@
 4. Polygon network
 5. Arbitrum network
 
+## Contract Addresses
+#### Celo (alfajores)
+```
+LingoRewards: 0x20D9c9287a077684B346E60cc489D05ac8687040
+CryptoLingo: 0x1B7fC3e85419A69DD4E3C7091E584107daD3E3cB
+```
+
+#### Harmony + Polygon + Arbitrum
+```
+LingoRewards: 0xbF090B1288F721FDC36d5D815B34Da4a79a28dCc
+CryptoLingo: 0x5eE36eb8dfB2b7edD5353b27E819723F9f640C6B
+```
+
 ## How to run
 #### Locally
 1. Run `yarn install` in the root dir
