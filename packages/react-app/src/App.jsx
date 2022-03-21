@@ -74,10 +74,13 @@ function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
   const networkOptions = [initialNetwork.name, NETWORKS.testnetHarmony.name, NETWORKS.matic.name];
+  const networkChainOptions = [initialNetwork.chainId, NETWORKS.testnetHarmony.chainId, NETWORKS.matic.chainId].map(
+    Number,
+  );
+  const networkChainOptionsSet = new Set(networkChainOptions);
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
-  const [signedMessage, setSignedMessage] = useState();
   const [isSessionAuthenticated, setIsSessionAuthenticated] = useState(true);
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
   const [tokenBalance, setTokenBalance] = useState(0);
@@ -146,8 +149,13 @@ function App(props) {
     async function getAddress() {
       if (userSigner) {
         const newAddress = await userSigner.getAddress();
-        debugger;
         setAddress(newAddress);
+        const providerChainId = Number(userSigner.provider.network.chainId);
+        if (networkChainOptions.some(a => a === providerChainId)) {
+          const currChainId = networkChainOptions.find(a => a === providerChainId);
+          const currChainIdxInNetworks = networkChainOptions.indexOf(currChainId);
+          setSelectedNetwork(networkOptions[currChainIdxInNetworks]);
+        } else alert(`We don't support ${userSigner.provider.network.name} yet`);
         // if (DEBUG) console.log(`New address: ${newAddress}`);
         // const signature = await userSigner.signMessage(messageToSign);
         // setSignedMessage(signature);
@@ -284,12 +292,6 @@ function App(props) {
     }
   }, [loadWeb3Modal]);
 
-  const toggleNetwork = () => {
-    const currentNetworkIdx = networkOptions.indexOf(selectedNetwork);
-    const nextNetworkIdx = (currentNetworkIdx + 1) % networkOptions.length;
-    setSelectedNetwork(networkOptions[nextNetworkIdx]);
-  };
-
   useEffect(() => {
     async function getUserTokenBalance() {
       if (userSigner && readContracts && readContracts.LingoRewards) {
@@ -336,10 +338,6 @@ function App(props) {
           <Link to="/read">Read</Link>
         </Menu.Item>
       </Menu>
-
-      <button style={{ margin: "10px" }} onClick={() => toggleNetwork()}>
-        Toggle network
-      </button>
 
       <Switch>
         <Route exact path="/">
