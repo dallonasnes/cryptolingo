@@ -58,7 +58,7 @@ const initialNetwork = NETWORKS.alfajores; // <------- select your target fronte
 // 😬 Sorry for all the console logging
 const DEBUG = false;
 const NETWORKCHECK = true;
-const USE_BURNER_WALLET = true; // toggle burner wallet feature
+const USE_BURNER_WALLET = false; // toggle burner wallet feature
 const USE_NETWORK_SELECTOR = false;
 
 const web3Modal = Web3ModalSetup();
@@ -73,7 +73,7 @@ const providers = [
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
-  const networkOptions = [initialNetwork.name, NETWORKS.testnetHarmony.name];
+  const networkOptions = [initialNetwork.name, NETWORKS.testnetHarmony.name, NETWORKS.matic.name];
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
@@ -118,7 +118,6 @@ function App(props) {
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProviderAndSigner = useUserProviderAndSigner(injectedProvider, localProvider, USE_BURNER_WALLET);
   const userSigner = userProviderAndSigner.signer;
-  const messageToSign = "hello world";
 
   const authorizeWalletWithWebServer = async ({ address, signature }) => {
     return true;
@@ -147,6 +146,7 @@ function App(props) {
     async function getAddress() {
       if (userSigner) {
         const newAddress = await userSigner.getAddress();
+        debugger;
         setAddress(newAddress);
         // if (DEBUG) console.log(`New address: ${newAddress}`);
         // const signature = await userSigner.signMessage(messageToSign);
@@ -285,11 +285,9 @@ function App(props) {
   }, [loadWeb3Modal]);
 
   const toggleNetwork = () => {
-    if (selectedNetwork === networkOptions[0]) {
-      setSelectedNetwork(networkOptions[1]);
-    } else {
-      setSelectedNetwork(networkOptions[0]);
-    }
+    const currentNetworkIdx = networkOptions.indexOf(selectedNetwork);
+    const nextNetworkIdx = (currentNetworkIdx + 1) % networkOptions.length;
+    setSelectedNetwork(networkOptions[nextNetworkIdx]);
   };
 
   useEffect(() => {

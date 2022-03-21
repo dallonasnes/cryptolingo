@@ -26,6 +26,12 @@ export const NETWORKS = {
     rpcUrl: "https://alfajores-forno.celo-testnet.org",
     // blockExplorer: "https://explorer-mainnet.maticvigil.com//",
   },
+  matic: {
+    name: "matic",
+    rpcUrl: "https://polygon-rpc.com",
+    chainId: "137",
+    color: "#666666",
+  },
   mainnet: {
     name: "mainnet",
     color: "#ff8b9e",
