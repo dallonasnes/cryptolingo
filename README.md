@@ -4,6 +4,13 @@
 
 [Demo videos of multiple networks](https://www.youtube.com/watch?v=QvjtdN9-rXA&list=PL4GOnlnOJjYLRFMw1FBhKMOOMeXmJafXn)
 
+## Tech Stack
+1. IPFS - distributed data store. FE puts and fetches strings (story content) and blobs (audio files)
+2. Harmony network
+3. Celo network
+4. Polygon network
+5. Arbitrum network
+
 ## How to run
 #### Locally
 1. Run `yarn install` in the root dir
