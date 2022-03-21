@@ -1,6 +1,6 @@
 # CryptoLingo
 
-[Design doc](https://docs.google.com/document/d/1fxuRTKFf341P8SKJe3x6EaBJ-4peBViteYEQDByH3Nw/edit)
+[Design doc](https://docs.google.com/document/d/1gAmn7V9PMnOSJFKDBoo6Bk9CBrQplZUeqGedVKhFdmw/edit?usp=sharing)
 
 ## How to run
 #### Locally
