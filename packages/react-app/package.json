@@ -19,6 +19,8 @@
     "@apollo/client": "^3.3.21",
     "@apollo/react-hooks": "^4.0.0",
     "@eth-optimism/sdk": "^1.0.0",
+    "@headlessui/react": "^1.5.0",
+    "@heroicons/react": "^1.0.6",
     "@portis/web3": "^4.0.5",
     "@ramp-network/ramp-instant-sdk": "^2.2.0",
     "@testing-library/jest-dom": "^5.11.4",
@@ -56,6 +58,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
     "searchico": "^1.2.1",
+    "tailwindcss": "^3.0.23",
     "walletlink": "^2.1.5",
     "web3modal": "^1.9.1"
   },
@@ -75,7 +78,8 @@
     "less-plugin-npm-import": "^2.1.0",
     "prettier": "^2.0.5",
     "s3-folder-upload": "^2.3.1",
-    "surge": "^0.21.5"
+    "surge": "^0.21.5",
+    "tailwindcss": "^3.0.23"
   },
   "eslintConfig": {
     "extends": [
