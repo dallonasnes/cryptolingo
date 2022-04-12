@@ -28,7 +28,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📦 Install dependencies
-        run: sudo apt install libusb-dev libudev-dev && yarn install
+        run: yarn add -W @socialgouv/yarn-workspace-focus-install && npx @socialgouv/yarn-workspace-focus-install --cwd packages/react-native-app
 
       - name: 🚀 Build app
-        run: cd packages/react-native-app && eas build --non-interactive
+        run: cd packages/react-native-app && yarn eas build --non-interactive -p android
