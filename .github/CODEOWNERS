@@ -1,9 +1,9 @@
 # Default for all changes
 # These are not additive. Any more specific
 # line will supersede the less specific.
-* @dallonasnes @nullbitx8
+* @dallonasnes @nullbitx8 @steventkrawczyk
 
 # @nullbitx owns the contracts
 # If the PR only touches the contracts,
 # he will be added as a reviewer.
-/packages/hardhat @nullbitx8
+# /packages/hardhat @nullbitx8
