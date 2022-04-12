@@ -28,7 +28,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📦 Install dependencies
-        run: yarn install
+        run: sudo apt install libusb-dev libudev-dev && yarn install
 
       - name: 🚀 Build app
         run: cd packages/react-native-app && eas build --non-interactive
