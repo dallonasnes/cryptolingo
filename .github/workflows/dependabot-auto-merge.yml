@@ -11,19 +11,19 @@ jobs:
     secrets:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-  dependabot:
-    needs: [ call-frontend-test-suite ]
-    runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
-    steps:
-      - name: Approve a PR
-        run: gh pr review --approve "$PR_URL"
-        env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.MYTOKEN}}
+  # dependabot:
+  #   needs: [ call-frontend-test-suite ]
+  #   runs-on: ubuntu-latest
+  #   if: ${{ github.actor == 'dependabot[bot]' }}
+  #   steps:
+  #     - name: Approve a PR
+  #       run: gh pr review --approve "$PR_URL"
+  #       env:
+  #         PR_URL: ${{github.event.pull_request.html_url}}
+  #         GITHUB_TOKEN: ${{secrets.MYTOKEN}}
 
-      - name: Enable auto-merge for Dependabot PRs
-        run: gh pr merge --auto --merge "$PR_URL"
-        env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.MYTOKEN}}
+  #     - name: Enable auto-merge for Dependabot PRs
+  #       run: gh pr merge --auto --merge "$PR_URL"
+  #       env:
+  #         PR_URL: ${{github.event.pull_request.html_url}}
+  #         GITHUB_TOKEN: ${{secrets.MYTOKEN}}
