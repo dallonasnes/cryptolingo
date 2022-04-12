@@ -56,7 +56,8 @@
   },
   "workspaces": {
     "packages": [
-      "packages/react-native-app"
+      "packages/react-native-app",
+      "packages/hardhat"
     ],
     "nohoist": [
       "**/@graphprotocol/graph-ts",
