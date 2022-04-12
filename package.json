@@ -67,7 +67,9 @@
       "**/hardhat-ts/**"
     ]
   },
-  "dependencies": {},
+  "dependencies": {
+    "@socialgouv/yarn-workspace-focus-install": "^1.1.38"
+  },
   "devDependencies": {
     "husky": "^7.0.2"
   }
