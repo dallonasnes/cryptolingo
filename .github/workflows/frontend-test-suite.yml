@@ -28,7 +28,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📦 Install dependencies
-        run: cd packages/react-native-app && yarn install
+        run: yarn install
 
       - name: 🚀 Build app
         run: cd packages/react-native-app && eas build --non-interactive
